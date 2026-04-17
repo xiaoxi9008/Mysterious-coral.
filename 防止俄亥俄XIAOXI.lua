@@ -8,6 +8,6 @@ if game.PlaceId == 7239319209 then
 loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/%E4%BF%84%E4%BA%A5%E4%BF%84%E5%B7%9E%E6%BA%90%E7%A0%81.lua"))()
  else
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Mysterious-coral./refs/heads/main/XIAOXI付费加载器.lu/a"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Mysterious-coral./refs/heads/main/XIAOXI付费加载器.lua"))()
 
 end
