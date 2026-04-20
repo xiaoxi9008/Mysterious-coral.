@@ -47,11 +47,11 @@ local Window = WindUI:CreateWindow({
     NewElements = true,
     HideSearchBar = false,
     Size = UDim2.fromOffset(200, 395),
-    Theme = "Dark",  -- 保持深色主题
+    Theme = "Dark",  
     UserEnabled = true,
     SideBarWidth = 135,
     HasOutline = true,
-    Background = "video:https://raw.githubusercontent.com/xiaoxi9008/chesksks/refs/heads/main/Video_1773198866292_902.mp4",
+    Background = "https://raw.githubusercontent.com/xiaoxi9008/chesksks/refs/heads/main/image_download_1776648555077.jpg",
     
     OpenButton = {
         Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#222222'>I</font>",
@@ -74,11 +74,10 @@ local Window = WindUI:CreateWindow({
 do
     Window:Tag({
         Title = "加载器",
-        Color = Color3.fromHex("FFFFFF")  -- 改为白色
+        Color = Color3.fromHex("FFFFFF")  
     })
 end
 
--- 黑白配色方案
 local White = Color3.fromHex("#FFFFFF")
 local LightGray = Color3.fromHex("#CCCCCC")
 local Gray = Color3.fromHex("#999999")
