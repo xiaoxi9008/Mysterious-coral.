@@ -282,7 +282,7 @@ ScriptTab:Button({
 })
 
 ScriptTab:Button({
-    Title = "卡塔娜竞技场（进群问我要白名单）",
+    Title = "卡塔娜竞技场",
     Color = Color3.fromHex("999999"),
     Justify = "Center",
     Icon = "shredder",
@@ -304,6 +304,31 @@ ScriptTab:Button({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXI无限旅馆（阉割版）.lua"))() 
     end
 })
+
+ScriptTab:Button({
+    Title = "防御",
+    Color = Color3.fromHex("999999"),
+    Justify = "Center",
+    Icon = "shredder",
+    IconAlign = "Left",
+    Callback = function()
+        Window:Destroy()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/%E4%BB%98%E8%B4%B9%E7%89%88%E9%98%B2%E5%BE%A1XIAOXI.lua"))() 
+    end
+})
+
+ScriptTab:Button({
+    Title = "防御",
+    Color = Color3.fromHex("999999"),
+    Justify = "Center",
+    Icon = "shredder",
+    IconAlign = "Left",
+    Callback = function()
+        Window:Destroy()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI的nico下一个机器.lua"))() 
+    end
+})
+
 
 task.wait(0.5)
 
