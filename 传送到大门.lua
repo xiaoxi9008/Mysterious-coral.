@@ -52,7 +52,7 @@ local function createControlButton()
         button.Name = "TeleportButton"
         button.Size = UDim2.new(0, 200, 0, 50)
         button.Position = UDim2.new(0.5, -100, 0, 100)
-        button.Text = "📍 XIAOXI传送 📍"
+        button.Text = "点击传送到开锁大门"
         button.TextScaled = true
         button.Parent = screenGui
 
