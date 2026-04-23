@@ -285,6 +285,19 @@ local function createUI()
         end
     })
 
+
+ScriptTab:Button({
+        Title = "PETAPETA无限旅馆第2章",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI无限旅馆第2章付费版.lua"))() 
+        end
+    })
+
     task.wait(0.5)
 
     -- 黑白渐变边框效果
