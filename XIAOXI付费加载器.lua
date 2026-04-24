@@ -298,6 +298,18 @@ ScriptTab:Button({
         end
     })
 
+ScriptTab:Button({
+        Title = "GB（内脏与黑火药）",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/GB通知.lua"))() 
+        end
+    })
+    
     task.wait(0.5)
 
     -- 黑白渐变边框效果
