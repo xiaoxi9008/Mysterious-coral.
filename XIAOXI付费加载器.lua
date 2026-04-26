@@ -321,6 +321,18 @@ ScriptTab:Button({
             loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/GB通知2.lua"))() 
         end
     })
+
+ScriptTab:Button({
+        Title = "Forsaken（被遗弃）",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Mysterious-coral./refs/heads/main/XIAOXI%E4%BB%98%E8%B4%B9%E7%89%88%E8%A2%AB%E9%81%97%E5%BC%83%E9%80%9A%E7%9F%A5.lua"))() 
+        end
+    })
         
     task.wait(0.5)
 
