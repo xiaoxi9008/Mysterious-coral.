@@ -82,7 +82,7 @@ local function createUI()
         Title = "欢迎使用 <font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#222222'>I</font> 脚本",
         Desc = "作者：小西｜付费版为满血版脚本无阉割不会卡顿",
         ImageSize = 50,
-        Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/Image_1774762956572_963.jpg",
+        Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/7fdb4ab15ea4447bc9566c7caf856f82fc31ae85362243f5f0dd837a41c9ea86.png",
         ThumbnailSize = 170
     })
 
@@ -185,7 +185,7 @@ local function createUI()
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/终极战场.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/终极战场通知.lua"))()
         end
     })
 
