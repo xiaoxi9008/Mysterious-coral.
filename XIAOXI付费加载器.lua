@@ -116,6 +116,18 @@ local function createUI()
         Description = "点击下方按钮执行对应脚本"
     })
 
+     ScriptTab:Button({
+        Title = "XIAOXI通用中心",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Mysterious-coral./refs/heads/main/XIAOXI%E9%80%9A%E7%94%A8%E9%80%9A%E7%9F%A5.lua"))() 
+        end
+    })
+
     -- 脚本按钮列表
     ScriptTab:Button({
         Title = "赛马娘",
