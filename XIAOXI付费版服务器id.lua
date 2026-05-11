@@ -16,7 +16,7 @@ elseif game.PlaceId == 286090429 then -- 兵工厂
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/%E5%B0%8F%E8%A5%BF%E5%85%B5%E5%B7%A5%E5%8E%82.lua"))()
 
 elseif game.PlaceId == 79393329652220 then -- 小西防御
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/%E5%B0%8F%E8%A5%BF%E9%98%B2%E5%BE%A1.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/%E4%BB%98%E8%B4%B9%E7%89%88%E9%98%B2%E5%BE%A1XIAOXI.lua"))()
 
 elseif game.PlaceId == 4639625707 then -- 战争大亨
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/%E6%88%98%E4%BA%89%E5%A4%A7%E4%BA%A8.lua"))()
@@ -30,7 +30,6 @@ elseif game.PlaceId == 100484168444874 then -- 决斗场
 elseif game.PlaceId == 94217045453265 then -- 决斗场(第二地图)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/决斗场.lua"))()
 
--- DOORS 全地图
 elseif game.PlaceId == 6516141723 then -- DOORS 主游戏
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
 
