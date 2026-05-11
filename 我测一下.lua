@@ -3,8 +3,6 @@ Junkie.service = "XIAOXI HUB"
 Junkie.identifier = "1051580"
 Junkie.provider = "XIAOXI HUB"
 
-SCRIPT_KEY = ""
-
 local result = Junkie.check_key(SCRIPT_KEY)
 
 if result and result.valid then
