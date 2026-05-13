@@ -31,34 +31,34 @@ elseif game.PlaceId == 94217045453265 then -- 决斗场(第二地图)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/决斗场.lua"))()
 
 elseif game.PlaceId == 6516141723 then -- DOORS 主游戏
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 6839171747 then -- DOORS Lobby
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 10549820578 then -- The Backdoor
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 10873387885 then -- The Rooms
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 12210359224 then -- Floor 2 The Mines
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 123542004387962 then -- Super Hard Mode
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 12696293714 then -- Retro Mode
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 13728192813 then -- April Fools Mode
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))()
 
 elseif game.PlaceId == 10449761463 then -- 最强战场
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/最强战场.lua"))()
 
 elseif game.PlaceId == 83645629621104 then -- 被遗弃
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXIHUB被遗弃.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/%E4%BB%98%E8%B4%B9%E7%89%88%E9%98%B2%E5%BE%A1XIAOXI.lua"))()
 
 elseif game.PlaceId == 18687417158 then -- 被遗弃(第二地图)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXIHUB被遗弃.lua"))()

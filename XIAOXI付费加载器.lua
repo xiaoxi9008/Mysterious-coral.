@@ -185,7 +185,7 @@ local function createUI()
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/DOORS加载器。.lua"))() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/DOORS通知.lua"))() 
         end
     })
 
