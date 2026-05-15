@@ -19,7 +19,6 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 
--- 把创建UI的代码包装成函数
 local function createUI()
     local Window = WindUI:CreateWindow({
         Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font><font color='#FFAEC4'></font>",
@@ -357,7 +356,40 @@ ScriptTab:Button({
             loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/%E7%8A%AF%E7%BD%AA%E9%80%9A%E7%9F%A5.lua"))() 
         end
     })
-        
+    
+    local piTab = Window:Tab({
+        Title = "",
+        Desc = "", 
+        IconColor = Gray,
+        IconShape = "Square",
+        Border = true,
+    })
+   
+ piTab:Paragraph({
+    Title = "恭喜你发现彩蛋",
+    Desc = "免费看片😍",
+    ImageSize = 50,
+Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Mysterious-very-mysterious-very-mysterious-pictures./refs/heads/main/Screenshot_2026-05-11-05-56-40-34_8986d3d6409f652551ad962fe6d00e5b.jpg",
+ThumbnailWidth = 90,   
+ThumbnailSize = 1000
+})       
+
+piTab:Paragraph({
+    Title = "我的写真",
+    Desc = "😭😱🤔",
+    ImageSize = 50,
+Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Mysterious-very-mysterious-very-mysterious-pictures./refs/heads/main/IMG_20260430_044223.jpg",
+ThumbnailSize = 500
+})       
+ 
+piTab:Paragraph({
+    Title = "",
+    Desc = "",
+    ImageSize = 0,  -- 没有文字时，图片与文字的间距设为0
+    Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Mysterious-very-mysterious-very-mysterious-pictures./refs/heads/main/mmexport724e206309581b6f3692f70ab19bf1f1_1778395559669.png",
+    ThumbnailSize = 600
+})
+                                   
     task.wait(0.5)
 
     -- 黑白渐变边框效果
