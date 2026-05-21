@@ -1,3 +1,27 @@
+local Env = getfenv()
+
+local LogService = game:GetService("LogService")
+local getconnections = Env.getconnections
+local MessageOut = "MessageOut"
+local cons = getconnections(LogService[MessageOut])
+if cons then
+    for _, v in pairs(cons) do
+        pcall(function() v:Disable() end)
+    end
+end
+
+local function cleanupConnections()
+    pcall(function()
+        
+        for _, conn in ipairs(getconnections(LogService.MessageOut) or {}) do
+            pcall(function() conn:Disable() end)
+        end
+    end)
+end
+cleanupConnections()
+
+print("✅ 环境净化完成，LogService 干扰已禁用")
+
 local WindUI
 
 do
@@ -30,7 +54,7 @@ local function createUI()
         UserEnabled = true,
         SideBarWidth = 135,
         HasOutline = true,
-        Background = "https://raw.githubusercontent.com/xiaoxi9008/chesksks/refs/heads/main/image_download_1776648555077.jpg",
+        Background = "https://raw.githubusercontent.com/xiaoxi9008/-UI/refs/heads/main/920ce5d83c60d5193e79acd98e3e74408df827d6d2e5c1d25a56ed2e4a11177f.png",
         
         OpenButton = {
             Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font><font color='#FFAEC4'></font>",
@@ -81,25 +105,154 @@ local function createUI()
         Title = "欢迎使用 <font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#222222'>I</font> 脚本",
         Desc = "作者：小西｜付费版为满血版脚本无阉割不会卡顿",
         ImageSize = 50,
-        Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/7fdb4ab15ea4447bc9566c7caf856f82fc31ae85362243f5f0dd837a41c9ea86.png",
+        Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/-UI/refs/heads/main/920ce5d83c60d5193e79acd98e3e74408df827d6d2e5c1d25a56ed2e4a11177f.png",
         ThumbnailSize = 170
     })
 
     AboutTab:Divider()
 
-    AboutTab:Button({
-        Title = "显示欢迎通知",
-        Icon = "bell",
-        Color = Gray,
-        Callback = function()
-            WindUI:Notify({
-                Title = "欢迎!",
-                Content = "感谢使用XIAOXI付费版",
-                Icon = "heart",
-                Duration = 3
-            })
+AboutTab:Button({
+    Title = "XIAOXIV3全局汉化",
+    Icon = "pausel",
+    Color = Gray,
+    Callback = function()
+        local CoreGui = game:GetService("CoreGui")
+        local RunService = game:GetService("RunService")
+
+        local hintGui = Instance.new("ScreenGui")
+        hintGui.Parent = CoreGui
+        hintGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+        local hintLabel = Instance.new("TextLabel")
+        hintLabel.Parent = hintGui
+        hintLabel.BackgroundTransparency = 1
+        hintLabel.Position = UDim2.new(1, -20, 1, -40)
+        hintLabel.AnchorPoint = Vector2.new(1, 1)
+        hintLabel.Size = UDim2.new(0, 220, 0, 32)
+        hintLabel.Font = Enum.Font.SourceSansBold
+        hintLabel.TextSize = 20
+        hintLabel.TextColor3 = Color3.new(1, 1, 1)
+        hintLabel.TextStrokeTransparency = 0
+        hintLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+        hintLabel.Text = "by小西全局汉化已启动"
+
+        task.delay(3, function()
+            for i = 1, 0, -0.05 do
+                hintLabel.TextTransparency = i
+                hintLabel.TextStrokeTransparency = i
+                RunService.Heartbeat:Wait()
+            end
+            hintGui:Destroy()
+        end)
+
+        local HttpService = game:GetService("HttpService")
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+
+        local translationSpeed = 2
+        local translatedTexts = {}
+
+        local function translateText(text)
+            if not text or text == "" or #text < 2 then return nil end
+            if translatedTexts[text] then return translatedTexts[text] end
+
+            local success, result = pcall(function()
+                local url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=zh-CN&dt=t&q=" .. HttpService:UrlEncode(text)
+                local response = game:HttpGet(url)
+                local decoded = HttpService:JSONDecode(response)
+                return decoded and decoded[1] and decoded[1][1] and decoded[1][1][1] or nil
+            end)
+
+            if success and result then
+                translatedTexts[text] = result
+                return result
+            end
+            return nil
         end
-    })
+
+        local function isEnglish(text)
+            if not text or text == "" then return false end
+            local englishCount, totalCount = 0, 0
+            for char in text:gmatch(".") do
+                local byte = string.byte(char)
+                if byte then
+                    totalCount = totalCount + 1
+                    if (byte >= 65 and byte <= 90) or (byte >= 97 and byte <= 122) then
+                        englishCount = englishCount + 1
+                    end
+                end
+            end
+            return totalCount > 0 and (englishCount / totalCount) > 0.5
+        end
+
+        local function processTextObject(textObject)
+            if not textObject:IsA("TextLabel") and not textObject:IsA("TextButton") and not textObject:IsA("TextBox") then return end
+            local originalText = textObject.Text
+            if not originalText or originalText == "" or not isEnglish(originalText) then return end
+            local translatedText = translateText(originalText)
+            if translatedText and translatedText ~= originalText then
+                textObject.Text = translatedText
+            end
+        end
+
+        local function scanAndTranslate(parent)
+            for _, descendant in pairs(parent:GetDescendants()) do
+                task.spawn(function()
+                    processTextObject(descendant)
+                end)
+            end
+        end
+
+        local function onDescendantAdded(descendant)
+            task.delay(0.1, function()
+                processTextObject(descendant)
+            end)
+        end
+
+        local function startTranslation()
+            local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+            local playerGuiConnection = PlayerGui.DescendantAdded:Connect(onDescendantAdded)
+            local coreGuiConnection = CoreGui.DescendantAdded:Connect(onDescendantAdded)
+            
+            local lastScanTime = tick()
+            local scanInterval = 1.5 / translationSpeed
+            local heartbeatConnection = RunService.Heartbeat:Connect(function()
+                local currentTime = tick()
+                if currentTime - lastScanTime >= scanInterval then
+                    lastScanTime = currentTime
+                    task.spawn(function() scanAndTranslate(PlayerGui) end)
+                    pcall(function()
+                        for _, gui in pairs(CoreGui:GetChildren()) do
+                            if gui:IsA("ScreenGui") then task.spawn(function() scanAndTranslate(gui) end) end
+                        end
+                    end)
+                end
+            end)
+
+            scanAndTranslate(PlayerGui)
+            pcall(function()
+                for _, gui in pairs(CoreGui:GetChildren()) do
+                    if gui:IsA("ScreenGui") then scanAndTranslate(gui) end
+                end
+            end)
+
+            return {
+                PlayerGui = playerGuiConnection,
+                CoreGui = coreGuiConnection,
+                Heartbeat = heartbeatConnection
+            }
+        end
+
+        local translationConnections = startTranslation()
+        
+        WindUI:Notify({
+            Title = "汉化已启动",
+            Content = "全局汉化成功",
+            Icon = "check-circle",
+            Duration = 3
+        })
+    end
+})
 
     local ScriptTab = Window:Tab({
         Title = "支持服务器",
