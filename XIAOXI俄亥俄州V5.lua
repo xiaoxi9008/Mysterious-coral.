@@ -189,16 +189,16 @@ WindUI.Themes.Dark.Checkbox = Color3.fromHex("FFB6C1")
 WindUI.Themes.Dark.Button = Color3.fromHex("FF1493")
 WindUI.Themes.Dark.Slider = Color3.fromHex("FF69B4")
 
--- ===== 黑白流动渐变色方案 =====
+
 local COLOR_SCHEMES = {
     ["黑白流动"] = {
         ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromHex("000000")),   -- 纯黑
-            ColorSequenceKeypoint.new(0.2, Color3.fromHex("1A1A1A")), -- 深黑
-            ColorSequenceKeypoint.new(0.4, Color3.fromHex("808080")), -- 灰色
-            ColorSequenceKeypoint.new(0.6, Color3.fromHex("F0F0F0")), -- 亮灰
-            ColorSequenceKeypoint.new(0.8, Color3.fromHex("FFFFFF")), -- 纯白
-            ColorSequenceKeypoint.new(1, Color3.fromHex("000000"))    -- 回到纯黑
+            ColorSequenceKeypoint.new(0, Color3.fromHex("000000")),   
+            ColorSequenceKeypoint.new(0.2, Color3.fromHex("1A1A1A")), 
+            ColorSequenceKeypoint.new(0.4, Color3.fromHex("808080")), 
+            ColorSequenceKeypoint.new(0.6, Color3.fromHex("F0F0F0")), 
+            ColorSequenceKeypoint.new(0.8, Color3.fromHex("FFFFFF")), 
+            ColorSequenceKeypoint.new(1, Color3.fromHex("000000"))    
         }),
         "waves"
     },
@@ -221,7 +221,7 @@ local function createRainbowBorder(window, colorScheme, speed)
 
     local rainbowStroke = Instance.new("UIStroke")
     rainbowStroke.Name = "RainbowStroke"
-    rainbowStroke.Thickness = 2.5  -- 稍微加粗让黑白更明显
+    rainbowStroke.Thickness = 2.5  
     rainbowStroke.Color = Color3.new(1, 1, 1)
     rainbowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     rainbowStroke.LineJoinMode = Enum.LineJoinMode.Round
@@ -269,7 +269,7 @@ end
 local borderAnimation
 local borderEnabled = true
 local currentColor = "黑白流动"
-local animationSpeed = 3  -- 流动速度，越小越慢
+local animationSpeed = 3  
 
 local rainbowStroke = createRainbowBorder(Window, currentColor, animationSpeed)
 if rainbowStroke then
@@ -311,8 +311,8 @@ Window:EditOpenButton({
     CornerRadius = UDim.new(0, 16),
     StrokeThickness = 2.35,
     Color = ColorSequence.new(
-        Color3.fromHex("000000"),  -- 黑
-        Color3.fromHex("FFFFFF")   -- 白
+        Color3.fromHex("000000"),  
+        Color3.fromHex("FFFFFF")   
     ),
     Draggable = true,
 })
@@ -359,7 +359,6 @@ do
     })
 
     Tabs.BladeTab = Tabs.BladeSection:Tab({ Title = "杀戮光环", Icon = "crown" })
-    Tabs.ESPTab = Tabs.BladeSection:Tab({ Title = "杀戮光环", Icon = "crown" })
     Tabs.MoneyTab = Tabs.MoneySection:Tab({ Title = "刷钱类", Icon = "crown" })
     Tabs.BypassTab = Tabs.MoneySection:Tab({ Title = "绕过类", Icon = "crown" })
     Tabs.ProTab = Tabs.ProSection:Tab({ Title = "防护类", Icon = "crown" })
@@ -371,7 +370,6 @@ do
     Tabs.MusicTab = Tabs.MusicSection:Tab({ Title = "音乐", Icon = "music" })
     Tabs.zhuyaoTab = Tabs.genSection:Tab({ Title = "服务器", Icon = "music" })
     Tabs.weiTab = Tabs.genSection:Tab({ Title = "伪装欺骗", Icon = "music" })
-    Tabs.ggiTab = Tabs.genSection:Tab({ Title = "获得飞镖教程", Icon = "music" })
 end
 
 Window:SelectTab(1)
@@ -390,6 +388,9 @@ local jumpConn = nil
 local skinvoid = false
 local autoskin = false
 local skinsec = ""
+
+-- ========== 蓝盾检测开关 ==========
+local BlueShieldCheckEnabled = true  -- 默认开启
 
 local PlayerList = {}
 local function UpdatePlayerList()
@@ -410,6 +411,23 @@ local LoopTeleportAll = false
 local TeleportBehind = false
 local teleportSpeed = 0.3  
 
+-- ========== 蓝盾检测函数 ==========
+local function hasBlueShield(targetPlayer)
+    if not BlueShieldCheckEnabled then return false end  -- 开关关闭时不检测
+    if not targetPlayer or not targetPlayer.Character then return false end
+    local char = targetPlayer.Character
+    if char:FindFirstChildOfClass("ForceField") then
+        return true
+    end
+    for _, desc in pairs(char:GetDescendants()) do
+        if desc:IsA("ForceField") then
+            return true
+        end
+    end
+    return false
+end
+-- =================================
+
 local function TeleportToTargetPlayer()
     local character = LocalPlayer.Character
     if not character then return false end
@@ -419,20 +437,28 @@ local function TeleportToTargetPlayer()
     if TargetPlayer ~= "" then
         local target = Players:FindFirstChild(TargetPlayer)
         if target and target.Character then
+            -- 蓝盾检测
+            if hasBlueShield(target) then
+                WindUI:Notify({
+                    Title = "传送失败",
+                    Content = "目标 " .. TargetPlayer .. " 有蓝盾保护，无法传送",
+                    Duration = 2,
+                    Icon = "shield"
+                })
+                return false
+            end
+            
             local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
             if targetHRP then
-               
                 local humanoid = character:FindFirstChild("Humanoid")
                 if humanoid then
                     humanoid.Sit = false
                 end
                 
                 if TeleportBehind then
-                    
                     local behindPos = targetHRP.Position - targetHRP.CFrame.LookVector * 2.5
                     rootPart.CFrame = CFrame.new(behindPos, targetHRP.Position)
                 else
-                    
                     rootPart.CFrame = targetHRP.CFrame
                 end
                 return true
@@ -468,6 +494,11 @@ local function StartLoopTeleportAll()
         
         for _, player in pairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character then
+                -- 蓝盾检测：有盾的跳过
+                if hasBlueShield(player) then
+                    continue
+                end
+                
                 local targetHRP = player.Character:FindFirstChild("HumanoidRootPart")
                 if targetHRP then
                     local dist = (rootPart.Position - targetHRP.Position).Magnitude
@@ -478,7 +509,6 @@ local function StartLoopTeleportAll()
                 end
             end
         end
-        
         
         if closestPlayer and closestPlayer.Character then
             local targetHRP = closestPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -495,12 +525,6 @@ local function StartLoopTeleportAll()
                     rootPart.CFrame = targetHRP.CFrame
                 end
                 
-                 WindUI:Notify({
-                     Title = "传送",
-                     Content = "已传送到 " .. closestPlayer.Name,
-                     Duration = 0.5,
-                     Icon = "zap"
-                 })
             end
         end
     end)
@@ -531,6 +555,11 @@ local function StartLoopTeleportSingle()
         
         local target = Players:FindFirstChild(TargetPlayer)
         if target and target.Character then
+            -- 蓝盾检测
+            if hasBlueShield(target) then
+                return  -- 有盾就跳过这次传送
+            end
+            
             local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
             if targetHRP then
                 local humanoid = character:FindFirstChild("Humanoid")
@@ -550,8 +579,8 @@ local function StartLoopTeleportSingle()
 end
 
 Tabs.BladeTab:Paragraph({
-    Title = "使用须知",
-    Desc = "飞镖和战斧获得请看最后一个选项卡",
+    Title = "更新公告",
+    Desc = "更新了自动购买飞镖不可购买的问题添加了蓝盾检测顺便修了一下辅瞄",
     Image = "sword",
     ImageSize = 42,
 })
@@ -562,6 +591,22 @@ Tabs.BladeTab:Paragraph({
     Image = "sword",
     ImageSize = 42,
 })
+
+Tabs.BladeTab:Toggle({
+    Title = "蓝盾检测",
+    Desc = "开启后不会传送攻击有蓝盾的人",
+    Value = true,
+    Callback = function(state)
+        BlueShieldCheckEnabled = state
+        WindUI:Notify({
+            Title = "蓝盾检测",
+            Content = state and "已开启" or "已关闭",
+            Duration = 1,
+            Icon = "shield"
+        })
+    end
+})
+-- ============================================================
 
 local plrs = game:GetService("Players")
 local rs = game:GetService("ReplicatedStorage")
@@ -709,6 +754,7 @@ local function dartInitThrow()
 end
 
 local function dartHasShield(targetPlayer)
+    if not BlueShieldCheckEnabled then return false end  -- 开关关闭时不检测
     if not targetPlayer or not targetPlayer.Character then return false end
     
     local char = targetPlayer.Character
@@ -755,6 +801,11 @@ local function dartRapidThrowAttack()
     
     local targetData = dartFindValidTarget()
     if not targetData then return end
+    
+    -- 再次检测蓝盾
+    if dartHasShield(targetData.player) then
+        return
+    end
     
     local head = targetData.head 
     local tp = head.Position
@@ -906,12 +957,6 @@ Tabs.BladeTab:Toggle({
         LoopTeleportAll = state
         if state then
             StartLoopTeleportAll()
-            WindUI:Notify({
-                Title = "已开启",
-                Content = "正在循环传送到最近的玩家" .. (TeleportBehind and "后面" or "身边"),
-                Duration = 1,
-                Icon = "zap"
-            })
         else
             if teleportAllConnection then
                 teleportAllConnection:Disconnect()
@@ -950,8 +995,8 @@ Tabs.BladeTab:Button({
         else
             WindUI:Notify({
                 Title = "传送失败",
-                Content = "目标玩家不存在或无法传送",
-                Duration = 1,
+                Content = "目标玩家不存在、无法传送或有蓝盾保护",
+                Duration = 2,
                 Icon = "alert"
             })
         end
@@ -1088,6 +1133,9 @@ Tabs.BladeTab:Toggle({
     end
 })
 
+
+local dartBuyTeleporting = false
+
 Tabs.BladeTab:Toggle({
     Title = "自动购买忍者飞镖",
     Default = false,
@@ -1099,17 +1147,45 @@ Tabs.BladeTab:Toggle({
         if state then
             local heartbeat = game:GetService("RunService").Heartbeat
             dartNinjaStarBuyThread = heartbeat:Connect(function()
-                sig.InvokeServer("attemptPurchase", "Ninja Star")
+                local char = LocalPlayer.Character
+                if not char or dartBuyTeleporting then return end
+                
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                
+                -- 检查背包里有没有飞镖
+                local hasDart = false
                 for _, v in next, inv.items do
                     if v.name == "Ninja Star" then
+                        hasDart = true
                         break
                     end
+                end
+                
+                -- 没有飞镖才去买
+                if not hasDart then
+                    dartBuyTeleporting = true
+                    
+                    -- 保存位置
+                    local originalCFrame = hrp.CFrame
+                    
+                    -- 传送到指定坐标
+                    hrp.CFrame = CFrame.new(337.22, 27.13, -171.48)
+                    task.wait(0.1)
+                    
+                    -- 购买飞镖
+                    sig.InvokeServer("attemptPurchase", "Ninja Star")
+                    task.wait(0.3)
+                    
+                    -- 传送回去
+                    hrp.CFrame = originalCFrame
+                    
+                    dartBuyTeleporting = false
                 end
             end)
         end
     end
 })
-
 local originalOnDestroy = Window.OnDestroy or function() end
 Window.OnDestroy = function(...)
     originalOnDestroy(...)
@@ -2947,8 +3023,24 @@ Tabs.ProTab:Toggle({
     end
 })
 
-Tabs.ziaoxiTab:Paragraph({ Title = "━━━━━━ 自瞄区 ━━━━━━", Desc = "自动瞄准", Image = "sword", ImageSize = 42 })
+Tabs.ziaoxiTab:Paragraph({ 
+    Title = "━━━━━━ 自瞄区 ━━━━━━", 
+    Desc = "自动瞄准", 
+    Image = "sword", 
+    ImageSize = 42 
+})
 
+-- 初始化配置（修复辅瞄无效的关键）
+local AimbotConfig = {
+    Enabled = false,
+    AimPart = "Head",
+    AimMode = "Camera",
+    Radius = 300,
+    WallCheck = true,
+    CheckShield = true,
+    PredictAim = false,
+    PredictValue = 1.5
+}
 
 --静默自瞄
 local silentaim = false
@@ -2999,7 +3091,7 @@ setupHooks()
 
 --武器标签UI
 Tabs.ziaoxiTab:Toggle({
-    Title = "初始化（点也行不就不点也行不知道有啥用）",
+    Title = "自瞄初始化",
     Default = false,
     Callback = function(state)
         silentaim = state
@@ -3014,16 +3106,66 @@ local Camera = workspace.CurrentCamera
 
 local aimConnection = nil
 
+-- 优化1：预创建RaycastParams，避免每次新建
+local aimRayParams = RaycastParams.new()
+aimRayParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+-- 优化2：缓存护盾检测结果
+local shieldCheckCache = {}
+local lastShieldCheckTime = 0
+local SHIELD_CHECK_INTERVAL = 0.3
+
 local function hasShieldProtection(player)
     if not player or not player.Character then return false end
+    
+    -- 使用缓存
+    local now = tick()
+    if now - lastShieldCheckTime < SHIELD_CHECK_INTERVAL and shieldCheckCache[player.UserId] ~= nil then
+        return shieldCheckCache[player.UserId]
+    end
+    
+    local hasShield = false
     local humanoid = player.Character:FindFirstChild("Humanoid")
-    if not humanoid then return false end
-    for _, desc in pairs(player.Character:GetDescendants()) do
-        if desc:IsA("ForceField") or desc.Name:lower():find("shield") then
-            return true
+    if humanoid then
+        for _, desc in pairs(player.Character:GetDescendants()) do
+            if desc:IsA("ForceField") or desc.Name:lower():find("shield") then
+                hasShield = true
+                break
+            end
         end
     end
-    return false
+    
+    shieldCheckCache[player.UserId] = hasShield
+    lastShieldCheckTime = now
+    return hasShield
+end
+
+-- 优化3：限制墙壁检测频率
+local lastWallCheckTime = 0
+local wallCheckResults = {}
+local WALL_CHECK_INTERVAL = 0.1 -- 100ms检测一次，不是每帧
+
+local function canSeeTarget(char)
+    if not AimbotConfig.WallCheck then return true end
+    
+    local now = tick()
+    if now - lastWallCheckTime < WALL_CHECK_INTERVAL and wallCheckResults[char] ~= nil then
+        return wallCheckResults[char]
+    end
+    
+    -- 清除旧缓存
+    wallCheckResults = {}
+    
+    local head = char:FindFirstChild("Head")
+    if not head then return false end
+    
+    aimRayParams.FilterDescendantsInstances = {LocalPlayer.Character}
+    local ray = workspace:Raycast(Camera.CFrame.Position, head.Position - Camera.CFrame.Position, aimRayParams)
+    local canSee = ray and ray.Instance and ray.Instance:IsDescendantOf(char)
+    
+    wallCheckResults[char] = canSee
+    lastWallCheckTime = now
+    return canSee
 end
 
 local function getNearestTarget()
@@ -3042,11 +3184,12 @@ local function getNearestTarget()
             continue
         end
 
-        local worldPos = char[AimbotConfig.AimPart].Position
-        local screenPos, onScreen = Camera:WorldToViewportPoint(worldPos)
+        local targetPart = char[AimbotConfig.AimPart]
+        local worldPos = targetPart.Position
 
         local dist
         if AimbotConfig.AimMode == "Camera" then
+            local screenPos, onScreen = Camera:WorldToViewportPoint(worldPos)
             if not onScreen then continue end
             dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
             if dist > AimbotConfig.Radius then continue end
@@ -3054,22 +3197,19 @@ local function getNearestTarget()
             dist = (worldPos - Camera.CFrame.Position).Magnitude
         end
 
-        if AimbotConfig.WallCheck then
-            local rayParams = RaycastParams.new()
-            rayParams.FilterDescendantsInstances = {LocalPlayer.Character}
-            rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-            local ray = workspace:Raycast(Camera.CFrame.Position, worldPos - Camera.CFrame.Position, rayParams)
-            local canSee = ray and ray.Instance and ray.Instance:IsDescendantOf(char)
-            if not canSee then continue end
-        end
+        -- 优化后的墙壁检测
+        if not canSeeTarget(char) then continue end
 
         if AimbotConfig.PredictAim then
-            worldPos = worldPos + char[AimbotConfig.AimPart].Velocity * AimbotConfig.PredictValue / 10
+            local velocity = targetPart.Velocity
+            if velocity then
+                worldPos = worldPos + velocity * AimbotConfig.PredictValue / 10
+            end
         end
 
         if dist < minDist then
             minDist = dist
-            nearest = {Part = char[AimbotConfig.AimPart], WorldPos = worldPos}
+            nearest = {Part = targetPart, WorldPos = worldPos}
         end
     end
     return nearest
@@ -3103,6 +3243,7 @@ Tabs.ziaoxiTab:Toggle({
     Default = true,
     Callback = function(Value)
         AimbotConfig.WallCheck = Value
+        wallCheckResults = {} -- 清空缓存
     end
 })
 
@@ -3154,8 +3295,8 @@ Tabs.ziaoxiTab:Toggle({
 Tabs.ziaoxiTab:Dropdown({
     Title = "瞄准模式",
     Values = {
-        "PC",
-        "手机"
+        "相机瞄准",
+        "最近瞄准"
     },
     Default = "相机瞄准",
     Callback = function(Value)
@@ -3166,20 +3307,26 @@ Tabs.ziaoxiTab:Dropdown({
         end
     end
 })
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
+-- 美国子弹（已添加墙壁检测）
 local BulletConfig = {
     Enabled = false,
     CheckShield = false,
     CheckFriend = false,
     ShootPart = "Head",
     ShootMode = "Camera",
-    Radius = 300
+    Radius = 300,
+    WallCheck = false
 }
 
--- 缓存系统，解决卡顿
+-- 优化4：美国子弹专用RaycastParams和缓存
+local bulletRayParams = RaycastParams.new()
+bulletRayParams.FilterType = Enum.RaycastFilterType.Blacklist
+local bulletWallCache = {}
+local lastBulletWallCheck = 0
+local BULLET_WALL_INTERVAL = 0.15
+
+-- 缓存系统
 local friendCache = {}
 local shieldCache = {}
 local lastFriendCheck = 0
@@ -3233,6 +3380,33 @@ local function hasShield(char)
     return plr and shieldCache[plr.UserId] or false
 end
 
+-- 优化5：带缓存的墙壁检测
+local function isWallBetween(pos1, pos2, ignoreChar)
+    local now = tick()
+    local cacheKey = ignoreChar
+    if now - lastBulletWallCheck < BULLET_WALL_INTERVAL and bulletWallCache[cacheKey] ~= nil then
+        return bulletWallCache[cacheKey]
+    end
+    
+    bulletWallCache = {}
+    bulletRayParams.FilterDescendantsInstances = ignoreChar and {ignoreChar} or {}
+    local ray = workspace:Raycast(pos1, pos2 - pos1, bulletRayParams)
+    
+    local result = false
+    if ray then
+        local hitInstance = ray.Instance
+        if ignoreChar and hitInstance:IsDescendantOf(ignoreChar) then
+            result = false
+        else
+            result = true
+        end
+    end
+    
+    bulletWallCache[cacheKey] = result
+    lastBulletWallCheck = now
+    return result
+end
+
 local function getTarget()
     if BulletConfig.CheckFriend then updateFriendCache() end
     if BulletConfig.CheckShield then updateShieldCache() end
@@ -3261,6 +3435,13 @@ local function getTarget()
             if not os then continue end
             local sdist = (Vector2.new(sp.X, sp.Y) - center).Magnitude
             if sdist > BulletConfig.Radius then continue end
+        end
+
+        -- 优化后的墙壁检测
+        if BulletConfig.WallCheck then
+            if isWallBetween(Camera.CFrame.Position, wp, char) then
+                continue
+            end
         end
 
         if dist < minDist then
@@ -3311,6 +3492,17 @@ Tabs.ziaoxiTab:Toggle({
                 return bulletTrackingHook(self, ...)
             end)
         end
+    end
+})
+
+-- 美国子弹墙壁检测开关
+Tabs.ziaoxiTab:Toggle({
+    Title = "墙壁检测",
+    Desc = "开了之后纯子追",
+    Default = false,
+    Callback = function(Value)
+        BulletConfig.WallCheck = Value
+        bulletWallCache = {} -- 清空缓存
     end
 })
 
@@ -5004,127 +5196,5 @@ Tabs.weiTab:Button({
                 Duration = 2
             })
         end
-    end
-})
-
-Tabs.ggiTab:Paragraph({
-        Title = "欢迎使用 XIAOXI 脚本",
-        Desc = "教程：第一步你们先去商店买几把枪然后去加油站那里然后里面有个工作台把那个枪全出售然后你们再翻一下就能找到了全局不会掉但退出服务器没办法得重新弄然后就是你死了就不用管他那个飞镖是循环利用的就算你手上没飞镖也能打如果还听不懂的话就看底下按钮顺序",
-        ImageSize = 50,
-        Thumbnail = "video:https://raw.githubusercontent.com/xiaoxi9008/hxjxnx/refs/heads/main/VID_20260508_060029.mp4",
-        ThumbnailSize = 170
-    })
-
-Tabs.ggiTab:Button({
-    Title = "第一步传送到传送到商店购买枪",
-    Callback = function()
-        local player = game.Players.LocalPlayer
-        local char = player.Character or player.CharacterAdded:Wait()
-        local root = char:WaitForChild("HumanoidRootPart")
-        root.CFrame = CFrame.new(674.0, 6.5, -707.6)
-    end
-})
-
-Tabs.ggiTab:Button({
-    Title = "第二步传送到工作台去合成飞镖",
-    Callback = function()
-        local player = game.Players.LocalPlayer
-        local char = player.Character or player.CharacterAdded:Wait()
-        local root = char:WaitForChild("HumanoidRootPart")
-        root.CFrame = CFrame.new(1042.5, 6.1, -660.2)
-    end
-})
-
-Tabs.ESPTab:Toggle({
-    Title = "总开关ESP", 
-    Value = false, 
-    Callback = function(state)
-        vu85 = state
-        if state then
-            vu153() 
-        else
-            vu158() 
-        end
-    end
-})
-
--- 队伍检测
-Tabs.ESPTab:Toggle({
-    Title = "队伍检测",
-    Value = false,
-    Callback = function(state)
-        AttributesTeamCheck.Enabled = state
-    end
-})
-
--- 名字显示开关
-Tabs.ESPTab:Toggle({
-    Title = "玩家名字",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Names.Enabled = state
-    end
-})
-
--- 距离显示开关
-Tabs.ESPTab:Toggle({
-    Title = "距离显示",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Distances.Enabled = state
-    end
-})
-
--- 武器显示开关
-Tabs.ESPTab:Toggle({
-    Title = "武器显示",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Weapons.Enabled = state
-    end
-})
-
--- 血条开关
-Tabs.ESPTab:Toggle({
-    Title = "血条显示",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Healthbar.Enabled = state
-    end
-})
-
--- 血量文字开关
-Tabs.ESPTab:Toggle({
-    Title = "血量",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Healthbar.HealthText = state
-    end
-})
-
--- 箱子边框开关
-Tabs.ESPTab:Toggle({
-    Title = "边框",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Boxes.Full.Enabled = state
-    end
-})
-
--- 箱子填充开关
-Tabs.ESPTab:Toggle({
-    Title = "边框ESP",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Boxes.Filled.Enabled = state
-    end
-})
-
--- 四角边框开关
-Tabs.ESPTab:Toggle({
-    Title = "四角边框",
-    Value = true,
-    Callback = function(state)
-        ESPSettings.Drawing.Boxes.Corner.Enabled = state
     end
 })
