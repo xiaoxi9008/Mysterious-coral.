@@ -29,7 +29,6 @@ end
 
 local function cleanupConnections()
     pcall(function()
-        
         for _, conn in ipairs(getconnections(LogService.MessageOut) or {}) do
             pcall(function() conn:Disable() end)
         end
@@ -39,7 +38,6 @@ cleanupConnections()
 
 print("✅ 环境净化完成，LogService 干扰已禁用")
 
--- 放最上面
 local function searchPlayers(username)
     local url = "https://users.roblox.com/v1/users/search?keyword=" .. username .. "&limit=10"
     local success, result = pcall(function()
@@ -188,7 +186,6 @@ WindUI.Themes.Dark.Toggle = Color3.fromHex("FF69B4")
 WindUI.Themes.Dark.Checkbox = Color3.fromHex("FFB6C1")
 WindUI.Themes.Dark.Button = Color3.fromHex("FF1493")
 WindUI.Themes.Dark.Slider = Color3.fromHex("FF69B4")
-
 
 local COLOR_SCHEMES = {
     ["黑白流动"] = {
@@ -359,13 +356,12 @@ do
     })
 
     Tabs.BladeTab = Tabs.BladeSection:Tab({ Title = "杀戮光环", Icon = "crown" })
+    Tabs.ESPSectionTab = Tabs.BladeSection:Tab({ Title = "辅助脚本", Icon = "crown" })
     Tabs.MoneyTab = Tabs.MoneySection:Tab({ Title = "刷钱类", Icon = "crown" })
     Tabs.BypassTab = Tabs.MoneySection:Tab({ Title = "绕过类", Icon = "crown" })
     Tabs.ProTab = Tabs.ProSection:Tab({ Title = "防护类", Icon = "crown" })
     Tabs.ziaoxiTab = Tabs.qiangSection:Tab({ Title = "枪械设置", Icon = "crown" })
     Tabs.PlayerTab = Tabs.ConfigSection:Tab({ Title = "通用类", Icon = "crown" })
-    Tabs.MMMTab = Tabs.ConfigSection:Tab({ Title = "快捷美化类", Icon = "crown" })
-    Tabs.MHTab = Tabs.ConfigSection:Tab({ Title = "自定义美化类", Icon = "crown" })
     Tabs.ACTab = Tabs.ACSection:Tab({ Title = "复活节活动", Icon = "crown" })
     Tabs.MusicTab = Tabs.MusicSection:Tab({ Title = "音乐", Icon = "music" })
     Tabs.zhuyaoTab = Tabs.genSection:Tab({ Title = "服务器", Icon = "music" })
@@ -389,8 +385,7 @@ local skinvoid = false
 local autoskin = false
 local skinsec = ""
 
--- ========== 蓝盾检测开关 ==========
-local BlueShieldCheckEnabled = true  -- 默认开启
+local BlueShieldCheckEnabled = true
 
 local PlayerList = {}
 local function UpdatePlayerList()
@@ -411,9 +406,8 @@ local LoopTeleportAll = false
 local TeleportBehind = false
 local teleportSpeed = 0.3  
 
--- ========== 蓝盾检测函数 ==========
 local function hasBlueShield(targetPlayer)
-    if not BlueShieldCheckEnabled then return false end  -- 开关关闭时不检测
+    if not BlueShieldCheckEnabled then return false end
     if not targetPlayer or not targetPlayer.Character then return false end
     local char = targetPlayer.Character
     if char:FindFirstChildOfClass("ForceField") then
@@ -426,7 +420,6 @@ local function hasBlueShield(targetPlayer)
     end
     return false
 end
--- =================================
 
 local function TeleportToTargetPlayer()
     local character = LocalPlayer.Character
@@ -437,7 +430,6 @@ local function TeleportToTargetPlayer()
     if TargetPlayer ~= "" then
         local target = Players:FindFirstChild(TargetPlayer)
         if target and target.Character then
-            -- 蓝盾检测
             if hasBlueShield(target) then
                 WindUI:Notify({
                     Title = "传送失败",
@@ -494,7 +486,6 @@ local function StartLoopTeleportAll()
         
         for _, player in pairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character then
-                -- 蓝盾检测：有盾的跳过
                 if hasBlueShield(player) then
                     continue
                 end
@@ -524,7 +515,6 @@ local function StartLoopTeleportAll()
                 else
                     rootPart.CFrame = targetHRP.CFrame
                 end
-                
             end
         end
     end)
@@ -555,9 +545,8 @@ local function StartLoopTeleportSingle()
         
         local target = Players:FindFirstChild(TargetPlayer)
         if target and target.Character then
-            -- 蓝盾检测
             if hasBlueShield(target) then
-                return  -- 有盾就跳过这次传送
+                return
             end
             
             local targetHRP = target.Character:FindFirstChild("HumanoidRootPart")
@@ -577,13 +566,6 @@ local function StartLoopTeleportSingle()
         end
     end)
 end
-
-Tabs.BladeTab:Paragraph({
-    Title = "更新公告",
-    Desc = "更新了自动购买飞镖不可购买的问题添加了蓝盾检测顺便修了一下辅瞄",
-    Image = "sword",
-    ImageSize = 42,
-})
 
 Tabs.BladeTab:Paragraph({
     Title = "关于作者",
@@ -606,7 +588,8 @@ Tabs.BladeTab:Toggle({
         })
     end
 })
--- ============================================================
+
+local dartMode = "正常"
 
 local plrs = game:GetService("Players")
 local rs = game:GetService("ReplicatedStorage")
@@ -624,6 +607,14 @@ local dartCachedHitId = nil
 local dartCurrentTarget = nil
 local dartHeartConnections = {}
 local dartNinjaStarBuyThread = nil
+local dartMediumThread = nil
+local dartViolentThread = nil
+
+-- 自动购买线程变量
+local axeBuyThread = nil
+local bananaBuyThread = nil
+local axeBuyTeleporting = false
+local bananaBuyTeleporting = false
 
 getgenv().TrailColors = {
     StartColor = Color3.fromRGB(200, 180, 255),
@@ -714,6 +705,16 @@ local function dartCleanupConnections()
         if conn then conn:Disconnect() end
     end
     dartHeartConnections = {}
+    
+    if dartMediumThread then
+        dartMediumThread:Disconnect()
+        dartMediumThread = nil
+    end
+    
+    if dartViolentThread then
+        dartViolentThread:Disconnect()
+        dartViolentThread = nil
+    end
 end
 
 local function dartEquipNinjaStar()
@@ -754,7 +755,7 @@ local function dartInitThrow()
 end
 
 local function dartHasShield(targetPlayer)
-    if not BlueShieldCheckEnabled then return false end  -- 开关关闭时不检测
+    if not BlueShieldCheckEnabled then return false end
     if not targetPlayer or not targetPlayer.Character then return false end
     
     local char = targetPlayer.Character
@@ -777,6 +778,15 @@ local function dartFindValidTarget()
     
     if not myPos then return nil end
     
+    local maxRange
+    if dartMode == "暴力" then
+        maxRange = 1000
+    elseif dartMode == "中等" then
+        maxRange = 500
+    else
+        maxRange = 50
+    end
+    
     for _, player in ipairs(plrs:GetPlayers()) do
         if player ~= lp and player.Character then
             local char = player.Character
@@ -786,7 +796,7 @@ local function dartFindValidTarget()
             
             if humanoid and head and hrp and humanoid.Health > 0 and not dartHasShield(player) then
                 local dist = (hrp.Position - myPos).Magnitude
-                if dist < minDist and dist <= 50 then
+                if dist < minDist and dist <= maxRange then
                     minDist = dist
                     closest = {player = player, head = head}
                 end
@@ -796,13 +806,13 @@ local function dartFindValidTarget()
     return closest
 end
 
+-- ========== 正常模式攻击 ==========
 local function dartRapidThrowAttack()
     if not dartOn or not dartCachedHitId then return end
     
     local targetData = dartFindValidTarget()
     if not targetData then return end
     
-    -- 再次检测蓝盾
     if dartHasShield(targetData.player) then
         return
     end
@@ -820,6 +830,92 @@ local function dartRapidThrowAttack()
     
     for i = 1, 15 do 
         sig.InvokeServer("hitSticky", dartCachedHitId, head, rcf, wcf)
+    end
+end
+
+-- ========== 中等模式攻击 ==========
+local function dartMediumThrowAttack()
+    if not dartOn or dartMode ~= "中等" then return end
+    
+    local targetData = dartFindValidTarget()
+    if not targetData then return end
+    
+    if dartHasShield(targetData.player) then
+        return
+    end
+    
+    local head = targetData.head
+    local tp = head.Position
+    
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+    if myPos then
+        local dist = (myPos.Position - tp).Magnitude
+        if dist > 500 then
+            if lp.Character and lp.Character.PrimaryPart then
+                lp.Character.PrimaryPart.CFrame = CFrame.new(tp + Vector3.new(0, 0, 3))
+            end
+        end
+    end
+    
+    local wcf = CFrame.new(tp, tp + Vector3.new(0, 1, 0))
+    local rcf = CFrame.new(0, 0, 0)
+    
+    local c = lp.Character
+    if c and c:FindFirstChild("RightHand") then
+        local rh = c:FindFirstChild("RightHand")
+        createBeautifulTrail(rh.Position, tp)
+    end
+    
+    for i = 1, 100 do
+        pcall(function()
+            sig.InvokeServer("hitSticky", dartCachedHitId or guid(), head, rcf, wcf)
+        end)
+    end
+end
+
+local function dartViolentThrowAttack()
+    if not dartOn or dartMode ~= "暴力" then return end
+    
+    local targetData = dartFindValidTarget()
+    if not targetData then return end
+    
+    if dartHasShield(targetData.player) then
+        return
+    end
+    
+    local head = targetData.head
+    local tp = head.Position
+    
+    local myPos = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+    if myPos then
+        local dist = (myPos.Position - tp).Magnitude
+        if dist > 1000 then
+            if lp.Character and lp.Character.PrimaryPart then
+                lp.Character.PrimaryPart.CFrame = CFrame.new(tp + Vector3.new(0, 0, 3))
+            end
+        end
+    end
+    
+    local wcf = CFrame.new(tp, tp + Vector3.new(0, 1, 0))
+    local rcf = CFrame.new(0, 0, 0)
+    
+    local c = lp.Character
+    if c and c:FindFirstChild("RightHand") then
+        local rh = c:FindFirstChild("RightHand")
+        createBeautifulTrail(rh.Position, tp)
+    end
+    
+    local hitId = dartCachedHitId or guid()
+    
+    -- 10线程并发，每线程500下，超级快
+    for j = 1, 10 do
+        task.spawn(function()
+            for i = 1, 500 do
+                pcall(function()
+                    sig.InvokeServer("hitSticky", hitId, head, rcf, wcf)
+                end)
+            end
+        end)
     end
 end
 
@@ -868,7 +964,7 @@ end
 
 Tabs.BladeTab:Paragraph({
     Title = "一 传送功能 一",
-    Desc = "选择玩家并开启传送（循环传送会自动传送到最近的玩家）",
+    Desc = "选择玩家并开启传送",
     Image = "zap",
     ImageSize = 32,
 })
@@ -1005,78 +1101,113 @@ Tabs.BladeTab:Button({
 
 Tabs.BladeTab:Paragraph({
     Title = "一 暴力功能 一",
-    Desc = "需要有飞镖香蕉战斧只要有以下物品就能用以下功能",
+    Desc = "温馨提示：飞镖模式里的中和暴力开了之后延迟会变高",
     Image = "zap",
     ImageSize = 32,
 })
 
-Tabs.BladeTab:Toggle({
-    Title = "透视",
-Value = false,
-Callback = function(enableESP)
-if enableESP then
-local function ApplyESP(v)
-if v.Character and v.Character:FindFirstChildOfClass'Humanoid' then
-v.Character.Humanoid.NameDisplayDistance = 9e9
-v.Character.Humanoid.NameOcclusion = "NoOcclusion"
-v.Character.Humanoid.HealthDisplayDistance = 9e9
-v.Character.Humanoid.HealthDisplayType = "AlwaysOn"
-v.Character.Humanoid.Health = v.Character.Humanoid.Health
-end
-end
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-for i, v in pairs(Players:GetPlayers()) do
-ApplyESP(v)
-v.CharacterAdded:Connect(function()
-task.wait(0.33)
-ApplyESP(v)
-end)
-end
-Players.PlayerAdded:Connect(function(v)
-ApplyESP(v)
-v.CharacterAdded:Connect(function()
-task.wait(0.33)
-ApplyESP(v)
-end)
-end)
-local espConnection = RunService.Heartbeat:Connect(function()
-for i, v in pairs(Players:GetPlayers()) do
-if v.Character and v.Character:FindFirstChildOfClass'Humanoid' then
-v.Character.Humanoid.NameDisplayDistance = 9e9
-v.Character.Humanoid.NameOcclusion = "NoOcclusion"
-v.Character.Humanoid.HealthDisplayDistance = 9e9
-v.Character.Humanoid.HealthDisplayType = "AlwaysOn"
-end
-end
-end)
-_G.ESPConnection = espConnection
-else
-if _G.ESPConnection then
-_G.ESPConnection:Disconnect()
-_G.ESPConnection = nil
-end
-local Players = game:GetService("Players")
-for i, v in pairs(Players:GetPlayers()) do
-if v.Character and v.Character:FindFirstChildOfClass'Humanoid' then
-v.Character.Humanoid.NameDisplayDistance = 100
-v.Character.Humanoid.NameOcclusion = "OccludeAll"
-v.Character.Humanoid.HealthDisplayDistance = 100
-v.Character.Humanoid.HealthDisplayType = "DisplayWhenDamaged"
-end
-end
-end
-end
+Tabs.BladeTab:Dropdown({
+    Title = "飞镖模式",
+    Values = {"正常", "中", "暴力"},
+    Value = "正常",
+    Callback = function(mode)
+        dartMode = mode
+        
+        if dartOn then
+            dartCleanupConnections()
+            
+            if mode == "正常" then
+                dartEquipNinjaStar()
+                task.wait(0.1)
+                dartInitThrow()
+                
+                local conn = RunService.RenderStepped:Connect(function()
+                    if not dartOn then return end
+                    dartRapidThrowAttack()
+                end)
+                table.insert(dartHeartConnections, conn)
+                
+            elseif mode == "中等" then
+                dartEquipNinjaStar()
+                task.wait(0.1)
+                
+                dartMediumThread = RunService.RenderStepped:Connect(function()
+                    dartMediumThrowAttack()
+                end)
+                table.insert(dartHeartConnections, dartMediumThread)
+                
+            elseif mode == "暴力" then
+                dartEquipNinjaStar()
+                task.wait(0.1)
+                
+                dartViolentThread = RunService.RenderStepped:Connect(function()
+                    dartViolentThrowAttack()
+                end)
+                table.insert(dartHeartConnections, dartViolentThread)
+            end
+        end
+    end
 })
 
 Tabs.BladeTab:Toggle({
-    Title = "踩踏光环",
-Value = false,
-Callback = function(state)
-autostomp = state
-end
+    Title = "透视",
+    Value = false,
+    Callback = function(enableESP)
+        if enableESP then
+            local function ApplyESP(v)
+                if v.Character and v.Character:FindFirstChildOfClass'Humanoid' then
+                    v.Character.Humanoid.NameDisplayDistance = 9e9
+                    v.Character.Humanoid.NameOcclusion = "NoOcclusion"
+                    v.Character.Humanoid.HealthDisplayDistance = 9e9
+                    v.Character.Humanoid.HealthDisplayType = "AlwaysOn"
+                    v.Character.Humanoid.Health = v.Character.Humanoid.Health
+                end
+            end
+            local Players = game:GetService("Players")
+            local RunService = game:GetService("RunService")
+            for i, v in pairs(Players:GetPlayers()) do
+                ApplyESP(v)
+                v.CharacterAdded:Connect(function()
+                    task.wait(0.33)
+                    ApplyESP(v)
+                end)
+            end
+            Players.PlayerAdded:Connect(function(v)
+                ApplyESP(v)
+                v.CharacterAdded:Connect(function()
+                    task.wait(0.33)
+                    ApplyESP(v)
+                end)
+            end)
+            local espConnection = RunService.Heartbeat:Connect(function()
+                for i, v in pairs(Players:GetPlayers()) do
+                    if v.Character and v.Character:FindFirstChildOfClass'Humanoid' then
+                        v.Character.Humanoid.NameDisplayDistance = 9e9
+                        v.Character.Humanoid.NameOcclusion = "NoOcclusion"
+                        v.Character.Humanoid.HealthDisplayDistance = 9e9
+                        v.Character.Humanoid.HealthDisplayType = "AlwaysOn"
+                    end
+                end
+            end)
+            _G.ESPConnection = espConnection
+        else
+            if _G.ESPConnection then
+                _G.ESPConnection:Disconnect()
+                _G.ESPConnection = nil
+            end
+            local Players = game:GetService("Players")
+            for i, v in pairs(Players:GetPlayers()) do
+                if v.Character and v.Character:FindFirstChildOfClass'Humanoid' then
+                    v.Character.Humanoid.NameDisplayDistance = 100
+                    v.Character.Humanoid.NameOcclusion = "OccludeAll"
+                    v.Character.Humanoid.HealthDisplayDistance = 100
+                    v.Character.Humanoid.HealthDisplayType = "DisplayWhenDamaged"
+                end
+            end
+        end
+    end
 })
-   
+
 Tabs.BladeTab:Toggle({
     Title = "忍者飞镖光环",
     Default = false,
@@ -1087,52 +1218,28 @@ Tabs.BladeTab:Toggle({
         if state then
             dartEquipNinjaStar()
             task.wait(0.1)
-            dartInitThrow()
             
-            local fastAttackConn = runService.RenderStepped:Connect(function()
-                if not dartOn then return end
-                dartRapidThrowAttack()
-            end)
-            table.insert(dartHeartConnections, fastAttackConn)
+            if dartMode == "正常" then
+                dartInitThrow()
+                local conn = runService.RenderStepped:Connect(function()
+                    if not dartOn then return end
+                    dartRapidThrowAttack()
+                end)
+                table.insert(dartHeartConnections, conn)
+            elseif dartMode == "中等" then
+                dartMediumThread = runService.RenderStepped:Connect(function()
+                    dartMediumThrowAttack()
+                end)
+                table.insert(dartHeartConnections, dartMediumThread)
+            elseif dartMode == "暴力" then
+                dartViolentThread = runService.RenderStepped:Connect(function()
+                    dartViolentThrowAttack()
+                end)
+                table.insert(dartHeartConnections, dartViolentThread)
+            end
         end
     end
 })
-
-Tabs.BladeTab:Toggle({
-    Title = "传送攻击(需打开忍者飞镖光环)",
-    Default = false,
-    Callback = function(state)
-        dartTeleportTargets = state
-        
-        if state and dartOn then
-            local fastTeleportConn = runService.RenderStepped:Connect(function()
-                dartFastTeleport()
-            end)
-            table.insert(dartHeartConnections, fastTeleportConn)
-            
-            WindUI:Notify({
-                Title = "TPattack",
-                Content = "open",
-                Duration = 2,
-                Icon = "zap"
-            })
-        elseif state then
-            local checkConnection
-            checkConnection = runService.Heartbeat:Connect(function()
-                if dartOn then
-                    checkConnection:Disconnect()
-                    local fastTeleportConn = runService.RenderStepped:Connect(function()
-                        dartFastTeleport()
-                    end)
-                    table.insert(dartHeartConnections, fastTeleportConn)
-                elseif not dartTeleportTargets then
-                    checkConnection:Disconnect()
-                end
-            end)
-        end
-    end
-})
-
 
 local dartBuyTeleporting = false
 
@@ -1153,7 +1260,6 @@ Tabs.BladeTab:Toggle({
                 local hrp = char:FindFirstChild("HumanoidRootPart")
                 if not hrp then return end
                 
-                -- 检查背包里有没有飞镖
                 local hasDart = false
                 for _, v in next, inv.items do
                     if v.name == "Ninja Star" then
@@ -1162,30 +1268,117 @@ Tabs.BladeTab:Toggle({
                     end
                 end
                 
-                -- 没有飞镖才去买
                 if not hasDart then
                     dartBuyTeleporting = true
-                    
-                    -- 保存位置
                     local originalCFrame = hrp.CFrame
-                    
-                    -- 传送到指定坐标
                     hrp.CFrame = CFrame.new(337.22, 27.13, -171.48)
                     task.wait(0.1)
-                    
-                    -- 购买飞镖
                     sig.InvokeServer("attemptPurchase", "Ninja Star")
                     task.wait(0.3)
-                    
-                    -- 传送回去
                     hrp.CFrame = originalCFrame
-                    
                     dartBuyTeleporting = false
                 end
             end)
         end
     end
 })
+
+-- ========== 自动购买战斧 ==========
+Tabs.BladeTab:Toggle({
+    Title = "自动购买战斧",
+    Default = false,
+    Callback = function(state)
+        if axeBuyThread then
+            axeBuyThread:Disconnect()
+            axeBuyThread = nil
+        end
+        if state then
+            local heartbeat = game:GetService("RunService").Heartbeat
+            axeBuyThread = heartbeat:Connect(function()
+                local char = LocalPlayer.Character
+                if not char or axeBuyTeleporting then return end
+                
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                
+                local hasAxe = false
+                for _, v in next, inv.items do
+                    if v.name == "Tomahawk" then
+                        hasAxe = true
+                        break
+                    end
+                end
+                
+                if not hasAxe then
+                    axeBuyTeleporting = true
+                    local originalCFrame = hrp.CFrame
+                    hrp.CFrame = CFrame.new(1069.07, 17.62, 78.31)
+                    task.wait(0.1)
+                    sig.InvokeServer("attemptPurchase", "Tomahawk")
+                    task.wait(0.3)
+                    hrp.CFrame = originalCFrame
+                    axeBuyTeleporting = false
+                    
+                    WindUI:Notify({
+                        Title = "自动购买",
+                        Content = "已购买战斧",
+                        Duration = 1,
+                        Icon = "shopping-cart"
+                    })
+                end
+            end)
+        end
+    end
+})
+
+-- ========== 自动购买香蕉皮 ==========
+Tabs.BladeTab:Toggle({
+    Title = "自动购买香蕉皮",
+    Default = false,
+    Callback = function(state)
+        if bananaBuyThread then
+            bananaBuyThread:Disconnect()
+            bananaBuyThread = nil
+        end
+        if state then
+            local heartbeat = game:GetService("RunService").Heartbeat
+            bananaBuyThread = heartbeat:Connect(function()
+                local char = LocalPlayer.Character
+                if not char or bananaBuyTeleporting then return end
+                
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+                
+                local hasBanana = false
+                for _, v in next, inv.items do
+                    if v.name == "Banana Peel" then
+                        hasBanana = true
+                        break
+                    end
+                end
+                
+                if not hasBanana then
+                    bananaBuyTeleporting = true
+                    local originalCFrame = hrp.CFrame
+                    hrp.CFrame = CFrame.new(1318.13, 6.65, -590.10)
+                    task.wait(0.1)
+                    sig.InvokeServer("attemptPurchase", "Banana Peel")
+                    task.wait(0.3)
+                    hrp.CFrame = originalCFrame
+                    bananaBuyTeleporting = false
+                    
+                    WindUI:Notify({
+                        Title = "自动购买",
+                        Content = "已购买香蕉皮",
+                        Duration = 1,
+                        Icon = "shopping-cart"
+                    })
+                end
+            end)
+        end
+    end
+})
+
 local originalOnDestroy = Window.OnDestroy or function() end
 Window.OnDestroy = function(...)
     originalOnDestroy(...)
@@ -1193,6 +1386,14 @@ Window.OnDestroy = function(...)
     if dartNinjaStarBuyThread then
         dartNinjaStarBuyThread:Disconnect()
         dartNinjaStarBuyThread = nil
+    end
+    if axeBuyThread then
+        axeBuyThread:Disconnect()
+        axeBuyThread = nil
+    end
+    if bananaBuyThread then
+        bananaBuyThread:Disconnect()
+        bananaBuyThread = nil
     end
 end
 
@@ -1562,52 +1763,35 @@ Tabs.MoneyTab:Button({
     end
 })
 
-Tabs.MoneyTab:Paragraph({ Title = "━━━━━━ ATM抢劫 ━━━━━━", Desc = "自动抢劫ATM机", Image = "dollar-sign", ImageSize = 42 })
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
 
-Tabs.MoneyTab:Dropdown({
-    Title = "ATM模式",
-    Values = {"Regular", "AFK"},
-    Value = "Regular",
-    Callback = function(value) atmMode = value end
-})
-
-local atmFarmConn = nil
-local function startATMFarm()
-    if atmFarmConn then atmFarmConn:Disconnect() end
-    atmFarmConn = RunService.Heartbeat:Connect(function()
-        if not getgenv().AutoRobATM then return end
-        local atms = GetATMS()
-        if #atms == 0 then return end
-        
-        local hrp = HumanoidRootPart
-        if not hrp then return end
-        
-        for _, atm in pairs(atms) do
-            if atm:GetAttribute("state") ~= "destroyed" and atm.PrimaryPart then
-                local dis = (hrp.Position - atm.PrimaryPart.Position).magnitude
-                if dis <= 20 then
-                    equip("Fists")
-                    local args = {
-                        "prop",
-                        { ["meleeType"] = "meleepunch", ["guid"] = atm:GetAttribute("guid") }
-                    }
-                    local l = require(ReplicatedStorage.devv).load
-                    local sig = l("Signal")
-                    sig.FireServer("meleeItemHit", unpack(args))
-                end
-            end
-        end
-    end)
+-- 获取当前角色的 HumanoidRootPart
+local function getHRP()
+    local char = lp.Character
+    return char and char:FindFirstChild("HumanoidRootPart")
 end
 
-Tabs.MoneyTab:Toggle({
-    Title = "自动抢ATM",
-    Default = false,
-    Callback = function(state)
-        getgenv().AutoRobATM = state
-        if state then startATMFarm() end
+-- 获取所有ATM和收银机
+function GetATMS()
+    local atms = {}
+    for _, v in pairs(workspace.Game.Props.ATM:GetChildren()) do
+        table.insert(atms, v)
     end
-})
+    for _, v in pairs(workspace.Game.Props.CashRegister:GetChildren()) do
+        table.insert(atms, v)
+    end
+    return atms
+end
+
+-- 装备物品
+function equip(itemName)
+    if ReplicatedStorage.devv.remoteStorage:FindFirstChild("equip") then
+        ReplicatedStorage.devv.remoteStorage.equip:FireServer(itemName)
+    end
+end
 
 Tabs.MoneyTab:Paragraph({ Title = "━━━━━━ 物品拾取 ━━━━━━", Desc = "自动拾取物品", Image = "package", ImageSize = 42 })
 
@@ -2611,68 +2795,6 @@ Tabs.MoneyTab:Toggle({
                     end
                 end
             end
-        end
-    end
-})
-
-local autoATMCashCombo = false
-
-Tabs.MoneyTab:Toggle({
-    Title = "ATM农场",
-    Default = false,
-    Callback = function(Value)
-        autoATMCashCombo = Value
-        
-        if autoATMCashCombo then
-            local function collectCash()
-                local player = game:GetService("Players").LocalPlayer
-                local cashSize = Vector3.new(2, 0.2499999850988388, 1)
-                
-                for _, part in ipairs(workspace.Game.Entities.CashBundle:GetDescendants()) do
-                    if part:IsA("BasePart") and part.Size == cashSize then
-                        player.Character.HumanoidRootPart.CFrame = part.CFrame
-                        task.wait()
-                    end
-                end
-            end
-            
-            coroutine.wrap(function()
-                while autoATMCashCombo and task.wait() do
-                   
-                    local ATMsFolder = workspace:FindFirstChild("ATMs")
-                    local localPlayer = game:GetService("Players").LocalPlayer
-                    local hasActiveATM = false
-                    
-                    if ATMsFolder and localPlayer.Character then
-                        for _, atm in ipairs(ATMsFolder:GetChildren()) do
-                            if atm:IsA("Model") then
-                                local hp = atm:GetAttribute("health")
-                                if hp ~= 0 then
-                                    hasActiveATM = true
-                                    for _, part in ipairs(atm:GetChildren()) do
-                                        if part.Name == "Main" and part:IsA("BasePart") then
-                                            localPlayer.Character.HumanoidRootPart.CFrame = part.CFrame
-                                            task.wait()
-                                            atm:SetAttribute("health", 0)
-                                            break
-                                        end
-                                    end
-                                    task.wait()
-                                end
-                            end
-                        end
-                    end
-                    
-                    if hasActiveATM then
-                        task.wait(0.01)
-                    else
-                        collectCash()
-                        
-                 
-                        task.wait()
-                    end
-                end
-            end)()
         end
     end
 })
@@ -4416,552 +4538,6 @@ xeniox.Helpers.CallFuncSec = function(self, func, waited)
     self:SetIdentity(xeniox.Data.Identity)
 end
 
-Tabs.MMMTab:Toggle({
-    Title = "自动购买气球",
-    Value = false,
-    Callback = function(state)
-        if not state then return end
-        
-        local player = game:GetService("Players").LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        
-        if character:FindFirstChild("Balloon") then return end
-        
-        local Signal = load("Signal")
-        Signal.InvokeServer("attemptPurchase", "Balloon")
-        
-        task.wait(0.5)
-        
-        local v3item = load("v3item")
-        local inventory = v3item.inventory
-        local balloonItem = inventory.getFromName("Balloon")
-        
-        if balloonItem then
-            xeniox.Helpers:CallFuncSec(function()
-                balloonItem:SetEquipped(true)
-            end)
-        end
-    end
-})
-
-Tabs.MMMTab:Button({
-    Title = "美化美金(需普通气球)",
-    Callback = function()
-        for _, v in pairs(getgc(true)) do
-            if type(v) == "table" and rawget(v, "name") == "Balloon" and rawget(v, "holdableType") == "Balloon" then
-                v.name, v.cost, v.unpurchasable, v.multiplier, v.movespeedAdd, v.cannotDiscard = "Dollar Balloon", 200, true, 0.8, 8, true
-                if v.TPSOffsets then v.TPSOffsets.hold = CFrame.new(0, 0, 0) * CFrame.Angles(0, math.pi, 0) end
-                if v.viewportOffsets and v.viewportOffsets.hotbar then v.viewportOffsets.hotbar.dist = 4 end
-                v.canDrop, v.dropCooldown, v.craft = nil
-                break
-            end
-        end
-
-        for _, item in pairs(require(game.ReplicatedStorage.devv.client.Objects.v3item.modules.inventory).items) do
-            if item.name == "Dollar Balloon" then
-                for _, btn in pairs({item.button, item.backpackButton}) do
-                    if btn and btn.resetModelSkin then btn:resetModelSkin() end
-                end
-            end
-        end
-    end
-})
-Tabs.MMMTab:Button({
-    Title = "美化黑玫瑰(需普通气球)",
-    Callback = function()
-        for _, v in pairs(getgc(true)) do
-            if type(v) == "table" and rawget(v, "name") == "Balloon" and rawget(v, "holdableType") == "Balloon" then
-                v.name, v.cost, v.unpurchasable, v.multiplier, v.movespeedAdd, v.cannotDiscard = "Black Rose", 200, true, 0.75, 12, true
-                if v.TPSOffsets then v.TPSOffsets.hold = CFrame.new(0, 0.5, 0) end
-                if v.viewportOffsets and v.viewportOffsets.hotbar then v.viewportOffsets.hotbar.dist = 3 end
-                v.canDrop, v.dropCooldown, v.craft = nil
-                break
-            end
-        end
-
-        for _, item in pairs(require(game.ReplicatedStorage.devv.client.Objects.v3item.modules.inventory).items) do
-            if item.name == "Black Rose" then
-                for _, btn in pairs({item.button, item.backpackButton}) do
-                    if btn and btn.resetModelSkin then btn:resetModelSkin() end
-                end
-            end
-        end
-    end
-})
-
-Tabs.MMMTab:Button({
-Title = "美化Kunai(需普通气球)",
-Callback = function()
-for _, v in pairs(getgc(true)) do
-if type(v) == "table" and rawget(v, "name") == "Balloon" and rawget(v, "holdableType") == "Balloon" then
-v.name = "Kunai"
-v.permanent = true
-v.canDrop = true
-v.dropCooldown = 120
-v.holdableType = "Balloon"
-v.movespeedAdd = 12
-if v.TPSOffsets then
-v.TPSOffsets.hold = CFrame.new(0, -0.3, 0)
-else
-v.TPSOffsets = {hold = CFrame.new(0, -0.3, 0)}
-end
-if v.viewportOffsets then
-if v.viewportOffsets.hotbar then
-v.viewportOffsets.hotbar.dist = 3
-v.viewportOffsets.hotbar.offset = CFrame.new(0, 0, 0)
-v.viewportOffsets.hotbar.rotoffset = CFrame.Angles(0, 1.5707963, 0)
-else
-v.viewportOffsets.hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 1.5707963, 0)}
-end
-if v.viewportOffsets.ammoHUD then
-v.viewportOffsets.ammoHUD.dist = 2
-v.viewportOffsets.ammoHUD.offset = CFrame.new(-0.1, -0.2, 0)
-v.viewportOffsets.ammoHUD.rotoffset = CFrame.Angles(0, -1.3744468, 0)
-else
-v.viewportOffsets.ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744468, 0)}
-end
-if v.viewportOffsets.slotButton then
-v.viewportOffsets.slotButton.dist = 1
-v.viewportOffsets.slotButton.offset = CFrame.new(-0.1, -0.2, 0)
-v.viewportOffsets.slotButton.rotoffset = CFrame.Angles(0, -1.5707963, 0)
-else
-v.viewportOffsets.slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.5707963, 0)}
-end
-else
-v.viewportOffsets = {
-hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 1.5707963, 0)},
-ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744468, 0)},
-slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.5707963, 0)}
-}
-end
-break
-end
-end
-for _, item in pairs(require(game.ReplicatedStorage.devv.client.Objects.v3item.modules.inventory).items) do
-if item.name == "Kunai" then
-for _, btn in pairs({item.button, item.backpackButton}) do
-if btn and btn.resetModelSkin then btn:resetModelSkin() end
-end
-end
-end
-end
-})
-
-Tabs.MMMTab:Button({
-Title = "美化Spirit Kunai(需普通Kunai)",
-Callback = function()
-for _, v in pairs(getgc(true)) do
-if type(v) == "table" and rawget(v, "name") == "Kunai" and rawget(v, "holdableType") == "Kunai" then
-v.name = "Spirit Kunai"
-v.permanent = true
-v.canDrop = true
-v.dropCooldown = 120
-v.holdableType = "Kunai"
-v.movespeedAdd = 12
-if v.TPSOffsets then
-v.TPSOffsets.hold = CFrame.new(0, -0.3, 0)
-else
-v.TPSOffsets = {hold = CFrame.new(0, -0.3, 0)}
-end
-if v.viewportOffsets then
-if v.viewportOffsets.hotbar then
-v.viewportOffsets.hotbar.dist = 3
-v.viewportOffsets.hotbar.offset = CFrame.new(0, 0, 0)
-v.viewportOffsets.hotbar.rotoffset = CFrame.Angles(0, 1.5707963, 0)
-else
-v.viewportOffsets.hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 1.5707963, 0)}
-end
-if v.viewportOffsets.ammoHUD then
-v.viewportOffsets.ammoHUD.dist = 2
-v.viewportOffsets.ammoHUD.offset = CFrame.new(-0.1, -0.2, 0)
-v.viewportOffsets.ammoHUD.rotoffset = CFrame.Angles(0, -1.3744468, 0)
-else
-v.viewportOffsets.ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744468, 0)}
-end
-if v.viewportOffsets.slotButton then
-v.viewportOffsets.slotButton.dist = 1
-v.viewportOffsets.slotButton.offset = CFrame.new(-0.1, -0.2, 0)
-v.viewportOffsets.slotButton.rotoffset = CFrame.Angles(0, -1.5707963, 0)
-else
-v.viewportOffsets.slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.5707963, 0)}
-end
-else
-v.viewportOffsets = {
-hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 1.5707963, 0)},
-ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744468, 0)},
-slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.5707963, 0)}
-}
-end
-break
-end
-end
-for _, item in pairs(require(game.ReplicatedStorage.devv.client.Objects.v3item.modules.inventory).items) do
-if item.name == "Spirit Kunai" then
-for _, btn in pairs({item.button, item.backpackButton}) do
-if btn and btn.resetModelSkin then btn:resetModelSkin() end
-end
-end
-end
-end
-})
-
-Tabs.MMMTab:Toggle({
-    Title = "背包枪械美化虚空",
-    Value = false,
-    Callback = function(start) 
-        skinvoid = start
-        if skinvoid then
-            local it = require(game:GetService("ReplicatedStorage").devv).load("v3item").inventory
-            local b1 = require(game:GetService('ReplicatedStorage').devv).load('v3item').inventory.items
-            for i, item in next, b1 do 
-                if item.type == "Gun" then
-                    table.insert(require(game:GetService("ReplicatedStorage").devv.shared.Indicies.skins.bin.Special.Void).compatabilities, item.name)
-                    it.skinUpdate(item.name, "Void")
-                end
-            end
-        end
-    end
-})
-
-Tabs.MMMTab:Toggle({
-    Title = "背包枪械美化战术",
-    Value = false,
-    Callback = function(start) 
-        skinvoid = start
-        if skinvoid then
-            local it = require(game:GetService("ReplicatedStorage").devv).load("v3item").inventory
-            local b1 = require(game:GetService('ReplicatedStorage').devv).load('v3item').inventory.items
-            for i, item in next, b1 do 
-                if item.type == "Gun" then
-                    table.insert(require(game:GetService("ReplicatedStorage").devv.shared.Indicies.skins.bin.Special.Void).compatabilities, item.name)
-                    it.skinUpdate(item.name, "Tactical")
-                end
-            end
-        end
-    end
-})
-
-Tabs.MMMTab:Toggle({
-    Title = "背包枪械美化赛博",
-    Value = false,
-    Callback = function(start) 
-        skinvoid = start
-        if skinvoid then
-            local it = require(game:GetService("ReplicatedStorage").devv).load("v3item").inventory
-            local b1 = require(game:GetService('ReplicatedStorage').devv).load('v3item').inventory.items
-            for i, item in next, b1 do 
-                if item.type == "Gun" then
-                    table.insert(require(game:GetService("ReplicatedStorage").devv.shared.Indicies.skins.bin.Special.Void).compatabilities, item.name)
-                    it.skinUpdate(item.name, "Cyberpunk")
-                end
-            end
-        end
-    end
-})
-
-Tabs.MMMTab:Toggle({
-    Title = "背包枪械美化黑曜石",
-    Value = false,
-    Callback = function(start) 
-        skinvoid = start
-        if skinvoid then
-            local it = require(game:GetService("ReplicatedStorage").devv).load("v3item").inventory
-            local b1 = require(game:GetService('ReplicatedStorage').devv).load('v3item').inventory.items
-            for i, item in next, b1 do 
-                if item.type == "Gun" then
-                    table.insert(require(game:GetService("ReplicatedStorage").devv.shared.Indicies.skins.bin.Special.Void).compatabilities, item.name)
-                    it.skinUpdate(item.name, "Obsidian")
-                end
-            end
-        end
-    end
-})
-
-Tabs.MHTab:Dropdown({
-    Title = "选择美化皮肤",
-    Values = { 
-        "烟火", "虚空", "纯金", "暗物质", "反物质", "神秘", "虚空神秘", "战术", "纯金战术", 
-        "白未来", "黑未来", "圣诞未来", "礼物包装", "猩红", "收割者", "虚空收割者", "圣诞玩具",
-        "荒地", "隐形", "像素", "钻石像素", "黄金零下", "绿水晶", "生物", "樱花", "精英", 
-        "黑樱花", "彩虹激光", "蓝水晶", "紫水晶", "红水晶", "零下", "虚空射线", "冰冻钻石",
-        "虚空梦魇", "金雪", "爱国者", "MM2", "声望", "酷化", "蒸汽", "海盗", "玫瑰", "黑玫瑰",
-        "激光", "烟花", "诅咒背瓜", "大炮", "财富", "黄金大炮", "四叶草", "自由", "黑曜石", "赛博朋克"
-    },
-    Callback = function(Value) 
-        if Value == "烟火" then
-            skinsec = "Sparkler"
-        elseif Value == "虚空" then
-            skinsec = "Void"
-        elseif Value == "纯金" then
-            skinsec = "Solid Gold"
-        elseif Value == "暗物质" then
-            skinsec = "Dark Matter"
-        elseif Value == "反物质" then
-            skinsec = "Anti Matter"
-        elseif Value == "神秘" then
-            skinsec = "Hystic"
-        elseif Value == "虚空神秘" then
-            skinsec = "Void Mystic"
-        elseif Value == "战术" then
-            skinsec = "Tactical"
-        elseif Value == "纯金战术" then
-            skinsec = "Solid Gold Tactical"
-        elseif Value == "白未来" then
-            skinsec = "Future White"
-        elseif Value == "黑未来" then
-            skinsec = "Future Black"
-        elseif Value == "圣诞未来" then
-            skinsec = "Christmas Future"
-        elseif Value == "礼物包装" then
-            skinsec = "Gift Wrapped"
-        elseif Value == "猩红" then
-            skinsec = "Crimson Blood"
-        elseif Value == "收割者" then
-            skinsec = "Reaper"
-        elseif Value == "虚空收割者" then
-            skinsec = "Void Reaper"
-        elseif Value == "圣诞玩具" then
-            skinsec = "Christmas Toy"
-        elseif Value == "荒地" then
-            skinsec = "Wasteland"
-        elseif Value == "隐形" then
-            skinsec = "Invisible"
-        elseif Value == "像素" then
-            skinsec = "Pixel"
-        elseif Value == "钻石像素" then
-            skinsec = "Diamond Pixel"
-        elseif Value == "黄金零下" then
-            skinsec = "Frozen-Gold"
-        elseif Value == "绿水晶" then
-            skinsec = "Atomic Nature"
-        elseif Value == "生物" then
-            skinsec = "Biohazard"
-        elseif Value == "樱花" then
-            skinsec = "Sakura"
-        elseif Value == "精英" then
-            skinsec = "Elite"
-        elseif Value == "黑樱花" then
-            skinsec = "Death Blossom-Gold"
-        elseif Value == "彩虹激光" then
-            skinsec = "Rainbowlaser"
-        elseif Value == "蓝水晶" then
-            skinsec = "Atomic Water"
-        elseif Value == "紫水晶" then
-            skinsec = "Atomic Amethyst"
-        elseif Value == "红水晶" then
-            skinsec = "Atomic Flame"
-        elseif Value == "零下" then
-            skinsec = "Sub-Zero"
-        elseif Value == "虚空射线" then
-            skinsec = "Void-Ray"
-        elseif Value == "冰冻钻石" then
-            skinsec = "Frozen Diamond"
-        elseif Value == "虚空梦魇" then
-            skinsec = "Void Nightmare"
-        elseif Value == "金雪" then
-            skinsec = "Golden Snow"
-        elseif Value == "爱国者" then
-            skinsec = "Patriot"
-        elseif Value == "MM2" then
-            skinsec = "MM2 Barrett"
-        elseif Value == "声望" then
-            skinsec = "Prestige Barnett"
-        elseif Value == "酷化" then
-            skinsec = "Skin Walter"
-        elseif Value == "蒸汽" then
-            skinsec = "Steampunk"
-        elseif Value == "海盗" then
-            skinsec = "Pirate"
-        elseif Value == "玫瑰" then
-            skinsec = "Rose"
-        elseif Value == "黑玫瑰" then
-            skinsec = "Black Rose"
-        elseif Value == "激光" then
-            skinsec = "Hyperlaser"
-        elseif Value == "烟花" then
-            skinsec = "Firework"
-        elseif Value == "诅咒背瓜" then
-            skinsec = "Cursed Pumpkin"
-        elseif Value == "大炮" then
-            skinsec = "Cannon"
-        elseif Value == "财富" then
-            skinsec = "Firework"
-        elseif Value == "黄金大炮" then
-            skinsec = "Gold Cannon"
-        elseif Value == "四叶草" then
-            skinsec = "Lucky Clover"
-        elseif Value == "自由" then
-            skinsec = "Freedom"
-        elseif Value == "黑曜石" then
-            skinsec = "Obsidian"
-        elseif Value == "赛博朋克" then
-            skinsec = "Cyberpunk"
-        end
-    end
-})
-Tabs.MHTab:Toggle({
-    Title = "全部枪械美化",
-    Value = false,
-    Callback = function(start) 
-        autoskin = start
-        if autoskin then
-            local it = require(game:GetService("ReplicatedStorage").devv).load("v3item").inventory
-            local b1 = require(game:GetService('ReplicatedStorage').devv).load('v3item').inventory.items
-            for i, item in next, b1 do 
-                if item.type == "Gun" then
-                    it.skinUpdate(item.name, skinsec)
-                end
-            end
-        end
-    end
-})
-
-local items = {
-    "Golden Rose", "Black Rose", "Dollar Balloon", "Bat Balloon", "Bunny Balloon", "Clover Balloon",
-    "Ghost Balloon", "Gold Clover Balloon", "Heart Balloon", "Skull Balloon", "Snowflake Balloon",
-    "Admin AK-47", "Admin Nuke Launcher", "Admin RPG", "Void Gem", "Pulse Rifle", "Unusual Money Printer",
-    "Money Printer", "Trident", "NextBot Grenade", "El Fuego", "Kunai", "Spirit Kunai"
-}
-local itemDisplayNames = {
-    ["Golden Rose"] = "金玫瑰", ["Black Rose"] = "黑玫瑰", ["Dollar Balloon"] = "美元气球",
-    ["Bat Balloon"] = "蝙蝠气球", ["Bunny Balloon"] = "兔子气球", ["Clover Balloon"] = "三叶草气球",
-    ["Ghost Balloon"] = "幽灵气球", ["Gold Clover Balloon"] = "金三叶草气球", ["Heart Balloon"] = "爱心气球",
-    ["Skull Balloon"] = "骷髅气球", ["Snowflake Balloon"] = "雪花气球", ["Admin AK-47"] = "管理员黄金AK-47",
-    ["Admin Nuke Launcher"] = "管理员核弹发射器", ["Admin RPG"] = "管理员RPG", ["Void Gem"] = "虚空宝石",
-    ["Pulse Rifle"] = "脉冲步枪", ["Unusual Money Printer"] = "异常印钞机", ["Money Printer"] = "印钞机",
-    ["Trident"] = "三叉戟", ["NextBot Grenade"] = "NextBot手榴弹", ["El Fuego"] = "烈焰喷射器",
-    ["Kunai"] = "苦无", ["Spirit Kunai"] = "灵魂苦无"
-}
-local itemData = {}
-
-itemData["Bat Balloon"] = {name = "Bat Balloon", cost = 0, unpurchasable = true, multiplier = 0.625, holdableType = "Balloon", canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5.5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, math.pi, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Bunny Balloon"] = {name = "Bunny Balloon", cost = 0, unpurchasable = true, multiplier = 0.61, holdableType = "Balloon", canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 4.75, offset = CFrame.new(0, -0.25, 0), rotoffset = CFrame.Angles(0, 4.71238898038469, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Clover Balloon"] = {name = "Clover Balloon", cost = 200, unpurchasable = true, multiplier = 0.625, holdableType = "Balloon", canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Ghost Balloon"] = {name = "Ghost Balloon", cost = 0, unpurchasable = true, multiplier = 0.625, holdableType = "Balloon", canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 3.5, offset = CFrame.new(0, 0.5, 0), rotoffset = CFrame.Angles(0, math.pi, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Gold Clover Balloon"] = {name = "Gold Clover Balloon", cost = 250000, unpurchasable = true, multiplier = 0.6, holdableType = "Balloon", canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Heart Balloon"] = {name = "Heart Balloon", cost = 200, multiplier = 0.6, holdableType = "Balloon", unpurchasable = true, canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Skull Balloon"] = {name = "Skull Balloon", cost = 0, unpurchasable = true, multiplier = 0.625, holdableType = "Balloon", canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5.5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, -270, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Snowflake Balloon"] = {name = "Snowflake Balloon", cost = 0, unpurchasable = true, multiplier = 0.625, holdableType = "Balloon", canDrop = true, dropCooldown = 120, permanent = true, TPSOffsets = {hold = CFrame.new(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, (math.pi/2), 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Golden Rose"] = {name = "Golden Rose", guid = "golden_rose_"..tostring(tick()), permanent = true, canDrop = true, dropCooldown = 120, multiplier = 0.625, holdableType = "Balloon", movespeedAdd = 5, TPSOffsets = {hold = CFrame.new(0, 0.5, 0)}, viewportOffsets = {hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, (math.pi/2), 0)}, ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744467859455345, 0)}, slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, (-math.pi/2), 0)}}}
-itemData["Black Rose"] = {name = "Black Rose", guid = "black_rose_"..tostring(tick()), permanent = true, canDrop = true, dropCooldown = 120, multiplier = 0.75, holdableType = "Balloon", movespeedAdd = 12, TPSOffsets = {hold = CFrame.new(0, 0.5, 0)}, viewportOffsets = {hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, (math.pi/2), 0)}, ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744467859455345, 0)}, slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, (-math.pi/2), 0)}}}
-itemData["Dollar Balloon"] = {name = "Dollar Balloon", cost = 100000000000, unpurchasable = true, multiplier = 0.8, holdableType = "Balloon", movespeedAdd = 8, cannotDiscard = true, TPSOffsets = {hold = CFrame.new(0, 0, 0) * CFrame.Angles(0, math.pi, 0)}, viewportOffsets = {hotbar = {dist = 4, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}, ammoHUD = {dist = 5, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 0, 0)}}}
-itemData["Admin AK-47"] = {name = "Admin AK-47", modelName = "Gold AK-47", subtype = "AK-47", adminOnly = true, canDrop = false, unpurchasable = true, damage = 10, ammo = 999999999, startAmmo = -1, maxAmmo = -1, firemode = "auto", numProjectiles = 8, fireDebounce = 0.01}
-itemData["Admin Nuke Launcher"] = {name = "Admin Nuke Launcher", modelName = "Nuke Launcher", subtype = "Nuke Launcher", adminOnly = true, canDrop = false, unpurchasable = true, ammo = 99999999, startAmmo = -1, maxAmmo = -1, overrideProjectileProperties = {disableNukeFlash = true}, reloadTime = 0, reloadType = "mag", firemode = "auto", numProjectiles = 1, fireDebounce = 0.2}
-itemData["Admin RPG"] = {canDrop = false, unpurchasable = true, name = "Admin RPG", modelName = "RPG", subtype = "RPG", adminOnly = true, ammo = 99999999, startAmmo = -1, maxAmmo = -1, reloadTime = 0, reloadType = "mag", firemode = "auto", numProjectiles = 1, fireDebounce = 0.02, recoilAdd = 0, maxRecoil = 0, recoilDiminishFactor = 0, recoilFastDiminishFactor = 0}
-itemData["Void Gem"] = {name = "Void Gem", subtype = "gem", maxAmmo = 3, adminLimit = 1, sellPrice = 25000, canDrop = true, dropCooldown = 300}
-itemData["Pulse Rifle"] = {name = "Pulse Rifle", subtype = "Raygun", unpurchasable = true, damage = 22, headshotMultiplier = 1.5, ammo = 50, startAmmo = -1, maxAmmo = -1, reloadTime = 3.5, reloadType = "mag", firemode = "auto", numProjectiles = 1, fireDebounce = 0.04, projectileLength = 20, projectileLifetime = 200, speedDropoff = 0.04, speedMax = 5, baseSpread = 3, baseAimSpread = 0.8, spread = 11, aimSpread = 2.4, recoilAdd = 0.05, maxRecoil = 0.4, recoilDiminishFactor = 0.95, recoilFastDiminishFactor = 0.85}
-itemData["Unusual Money Printer"] = {name = "Unusual Money Printer", cost = 500, ammo = 1, startAmmo = -1, maxAmmo = 1, hint = {computer = "Click to Place", console = "Click to Place"}, canDrop = true, dropCooldown = 600, isConsumable = true, TPSOffsets = {hold = CFrame.new(-0.1, 0, -0.75) * CFrame.Angles(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5, offset = CFrame.new(0, 0.15, 0), rotoffset = CFrame.Angles(0, (-math.pi/2), 0)}, ammoHUD = {dist = 3.25, offset = CFrame.new(0, 1, 0), rotoffset = CFrame.Angles(0, (math.pi/2), 0)}}}
-itemData["Money Printer"] = {name = "Money Printer", ammo = 1, startAmmo = -1, maxAmmo = 1, adminLimit = 10, hint = {computer = "Click to Place", console = "Click to Place"}, canDrop = true, dropCooldown = 600, isConsumable = true, permanent = true, TPSOffsets = {hold = CFrame.new(-0.1, 0, -0.75) * CFrame.Angles(0, 0, 0)}, viewportOffsets = {hotbar = {dist = 5, offset = CFrame.new(0, 0.15, 0), rotoffset = CFrame.Angles(0, (-math.pi/2), 0)}, ammoHUD = {dist = 3.25, offset = CFrame.new(0, 1, 0), rotoffset = CFrame.Angles(0, (-math.pi/2), 0)}}}
-itemData["Trident"] = {name = "Trident", subtype = "RPG", unpurchasable = true, ammo = 1, startAmmo = 12, maxAmmo = 12, firemode = "semi", numProjectiles = 3, fireDebounce = 0.5, projectileLength = 4, projectileLifetime = 1000, speedDropoff = 0.04, speedMax = 5, baseSpread = 5, baseAimSpread = 1, spread = 10, aimSpread = 6, recoilAdd = 1, maxRecoil = 1.25, recoilDiminishFactor = 0.9, recoilFastDiminishFactor = 0.66}
-itemData["NextBot Grenade"] = {name = "NextBot Grenade", isNade = true, bounceSFX = "nadeBounce", canDrop = true, dropCooldown = 600, thrownOffset = CFrame.Angles(0, (math.pi/2), 0), ammo = 1, startAmmo = -1, maxAmmo = 1, permanent = true, throwDist = 50, TPSOffsets = {hold = CFrame.new(-0.1, 0.25, -0.125)}, viewportOffsets = {hotbar = {dist = 2.75, offset = CFrame.new(0, -0.125, 0), rotoffset = CFrame.Angles(0, 1.8849555921538759, 0)}, ammoHUD = {dist = 2, offset = CFrame.new(0, 0.1, 0), rotoffset = CFrame.Angles(0, (math.pi/2), 0)}}}
-itemData["El Fuego"] = {name = "El Fuego", modelName = "El Fuego", subtype = "Flamethrower", unpurchasable = true, ammo = 600, startAmmo = 0, maxAmmo = 600, reloadTime = 6, reloadType = "mag", firemode = "auto", damage = 6, numProjectiles = 3, fireDebounce = 0.05, projectileLength = 4, projectileLifetime = 60, speedDropoff = 0.04, speedMax = 5, baseSpread = 4, baseAimSpread = 2, spread = 12, aimSpread = 6, recoilAdd = 0.1, maxRecoil = 1, recoilDiminishFactor = 0.95, recoilFastDiminishFactor = 0.8}
-itemData["Kunai"] = {name = "Kunai", permanent = true, canDrop = true, dropCooldown = 120, holdableType = "Kunai", movespeedAdd = 12, TPSOffsets = {hold = CFrame.new(0, -0.3, 0)}, viewportOffsets = {hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 1.5707963, 0)}, ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744468, 0)}, slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.5707963, 0)}}}
-itemData["Spirit Kunai"] = {name = "Spirit Kunai", permanent = true, canDrop = true, dropCooldown = 120, holdableType = "Kunai", movespeedAdd = 12, TPSOffsets = {hold = CFrame.new(0, -0.3, 0)}, viewportOffsets = {hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, 1.5707963, 0)}, ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744468, 0)}, slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.5707963, 0)}}}
-
-local function getItemList()
-    local itemList = {}
-    for _, itemName in ipairs(items) do
-        local displayName = itemDisplayNames[itemName] or itemName
-        table.insert(itemList, displayName)
-    end
-    return itemList
-end
-
-local selectedItem = ""
-Tabs.MHTab:Dropdown({
-    Title = "选择物品",
-    Desc = "从列表中选择要获得的物品",
-    Values = getItemList(),
-    Value = "",
-    Callback = function(value)
-        if value and value ~= "" then
-            selectedItem = value
-        else
-            selectedItem = ""
-        end
-    end
-})
-
-local function getItemNameByDisplayName(displayName)
-    for itemName, dispName in pairs(itemDisplayNames) do
-        if dispName == displayName then return itemName end
-    end
-    return displayName
-end
-
-local function addItem(itemName)
-    pcall(function()
-        local itemSystem = require(ReplicatedStorage.devv).load("v3item")
-        local inventory = itemSystem.inventory
-        if not itemData[itemName] then return end
-        local itemConfig = itemData[itemName]
-        local itemToAdd = {
-            name = itemConfig.name,
-            guid = itemName:lower():gsub(" ", "_").."_"..tostring(tick()),
-            permanent = itemConfig.permanent or true,
-            canDrop = itemConfig.canDrop or true,
-            dropCooldown = itemConfig.dropCooldown or 120,
-            multiplier = itemConfig.multiplier or 0.625,
-            holdableType = itemConfig.holdableType or "Balloon",
-            movespeedAdd = itemConfig.movespeedAdd or 0,
-            cannotDiscard = itemConfig.cannotDiscard or false,
-            TPSOffsets = itemConfig.TPSOffsets or {hold = CFrame.new(0, 0.5, 0)},
-            viewportOffsets = itemConfig.viewportOffsets or {
-                hotbar = {dist = 3, offset = CFrame.new(0, 0, 0), rotoffset = CFrame.Angles(0, (math.pi/2), 0)},
-                ammoHUD = {dist = 2, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, -1.3744467859455345, 0)},
-                slotButton = {dist = 1, offset = CFrame.new(-0.1, -0.2, 0), rotoffset = CFrame.Angles(0, (-math.pi/2), 0)}
-            }
-        }
-        if itemConfig.subtype then itemToAdd.subtype = itemConfig.subtype end
-        if itemConfig.modelName then itemToAdd.modelName = itemConfig.modelName end
-        if itemConfig.adminOnly then itemToAdd.adminOnly = itemConfig.adminOnly end
-        if itemConfig.damage then itemToAdd.damage = itemConfig.damage end
-        if itemConfig.ammo then itemToAdd.ammo = itemConfig.ammo end
-        if itemConfig.startAmmo then itemToAdd.startAmmo = itemConfig.startAmmo end
-        if itemConfig.maxAmmo then itemToAdd.maxAmmo = itemConfig.maxAmmo end
-        if itemConfig.reloadTime then itemToAdd.reloadTime = itemConfig.reloadTime end
-        if itemConfig.reloadType then itemToAdd.reloadType = itemConfig.reloadType end
-        if itemConfig.firemode then itemToAdd.firemode = itemConfig.firemode end
-        if itemConfig.numProjectiles then itemToAdd.numProjectiles = itemConfig.numProjectiles end
-        if itemConfig.fireDebounce then itemToAdd.fireDebounce = itemConfig.fireDebounce end
-        if itemConfig.projectileLength then itemToAdd.projectileLength = itemConfig.projectileLength end
-        if itemConfig.projectileLifetime then itemToAdd.projectileLifetime = itemConfig.projectileLifetime end
-        if itemConfig.headshotMultiplier then itemToAdd.headshotMultiplier = itemConfig.headshotMultiplier end
-        if itemConfig.hint then itemToAdd.hint = itemConfig.hint end
-        if itemConfig.isConsumable then itemToAdd.isConsumable = itemConfig.isConsumable end
-        if itemConfig.isNade then itemToAdd.isNade = itemConfig.isNade end
-        if itemConfig.throwDist then itemToAdd.throwDist = itemConfig.throwDist end
-        if itemConfig.sellPrice then itemToAdd.sellPrice = itemConfig.sellPrice end
-        if itemConfig.adminLimit then itemToAdd.adminLimit = itemConfig.adminLimit end
-        if itemConfig.overrideProjectileProperties then itemToAdd.overrideProjectileProperties = itemConfig.overrideProjectileProperties end
-        if itemConfig.recoilAdd then itemToAdd.recoilAdd = itemConfig.recoilAdd end
-        if itemConfig.maxRecoil then itemToAdd.maxRecoil = itemConfig.maxRecoil end
-        if itemConfig.recoilDiminishFactor then itemToAdd.recoilDiminishFactor = itemConfig.recoilDiminishFactor end
-        if itemConfig.recoilFastDiminishFactor then itemToAdd.recoilFastDiminishFactor = itemConfig.recoilFastDiminishFactor end
-        if inventory.add then
-            inventory.add(itemToAdd, false)
-            if inventory.currentItemsData then
-                table.insert(inventory.currentItemsData, itemToAdd)
-            end
-        end
-        if inventory.rerender then
-            inventory:rerender()
-        end
-    end)
-end
-
-Tabs.MHTab:Button({
-    Title = "免费获得选择的物品",
-    Callback = function()
-        if selectedItem and selectedItem ~= "" then
-            local itemName = getItemNameByDisplayName(selectedItem)
-            if itemName then
-                addItem(itemName)
-            end
-        end
-    end
-})
-
 Tabs.ACTab:Paragraph({
     Title = "━━━━━━ 彩蛋活动已结束 ━━━━━━",
     Desc = "活动已结束",
@@ -5198,3 +4774,12 @@ Tabs.weiTab:Button({
         end
     end
 })
+
+Tabs.ESPSectionTab:Paragraph({ Title = "━━━━━━ 辅助脚本 ━━━━━━", Desc = "点击即可加载辅助脚本", Image = "dollar-sign", ImageSize = 42 })
+
+ Tabs.ESPSectionTab:Button({
+     Title = "点击加载辅助脚本",
+     Callback = function()
+         loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Mysterious-coral./refs/heads/main/%E4%BB%98%E8%B4%B9%E7%89%88%E8%BE%85%E5%8A%A9%E8%84%9A%E6%9C%AC.lua"))()
+     end
+ })
