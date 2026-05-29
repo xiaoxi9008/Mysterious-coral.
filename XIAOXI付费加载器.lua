@@ -510,6 +510,30 @@ ScriptTab:Button({
         end
     })
     
+ScriptTab:Button({
+        Title = "亡命速递",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI%E4%BB%98%E8%B4%B9%E7%89%88%E4%BA%A1%E5%91%BD%E9%80%9F%E9%80%92.lua"))() 
+        end
+    })
+ 
+ScriptTab:Button({
+        Title = "数学谋杀案（残疾人专用）",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI付费版数学谋杀案.lua"))() 
+        end
+    })    
+          
     local piTab = Window:Tab({
         Title = "",
         Desc = "", 
