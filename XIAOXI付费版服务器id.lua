@@ -116,6 +116,12 @@ elseif game.PlaceId == 14476003462 then -- PETAPETA / 无限旅馆 第1章
 elseif game.PlaceId == 79036558298014 then -- PETAPETA 梦魇学校 / 第2章
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI无限旅馆第2章付费版.lua"))()
 
+elseif game.PlaceId == 117398147513099 then 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOIX付费版竞争对手.lua"))()
+    
+elseif game.PlaceId == 17625359962 then 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOIX付费版竞争对手.lua"))()
+
 elseif game.PlaceId == 15085229984 then -- PETAPETA WIP测试服
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXI无限旅馆（阉割版）.lua"))()          
 
