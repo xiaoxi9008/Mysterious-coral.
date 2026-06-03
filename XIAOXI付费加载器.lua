@@ -54,7 +54,7 @@ local function createUI()
         UserEnabled = true,
         SideBarWidth = 135,
         HasOutline = true,
-        Background = "https://raw.githubusercontent.com/xiaoxi9008/-UI/refs/heads/main/920ce5d83c60d5193e79acd98e3e74408df827d6d2e5c1d25a56ed2e4a11177f.png",
+        Background = "video:https://raw.githubusercontent.com/xiaoxi9008/chesksks/refs/heads/main/b5f9989161bbc2e1f90c4028090de3d8.mp4",
         
         OpenButton = {
             Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font><font color='#FFAEC4'></font>",
@@ -313,7 +313,7 @@ AboutTab:Button({
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/99夜.lua"))() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI%E4%BB%98%E8%B4%B9%E7%89%8899%E5%A4%9C.lua"))() 
         end
     })
 
@@ -533,40 +533,30 @@ ScriptTab:Button({
             loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI付费版数学谋杀案.lua"))() 
         end
     })    
-          
-    local piTab = Window:Tab({
-        Title = "",
-        Desc = "", 
-        IconColor = Gray,
-        IconShape = "Square",
-        Border = true,
-    })
-   
- piTab:Paragraph({
-    Title = "恭喜你发现彩蛋",
-    Desc = "免费看片😍",
-    ImageSize = 50,
-Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Mysterious-very-mysterious-very-mysterious-pictures./refs/heads/main/Screenshot_2026-05-11-05-56-40-34_8986d3d6409f652551ad962fe6d00e5b.jpg",
-ThumbnailWidth = 90,   
-ThumbnailSize = 1000
-})       
 
-piTab:Paragraph({
-    Title = "我的写真",
-    Desc = "😭😱🤔",
-    ImageSize = 50,
-Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Mysterious-very-mysterious-very-mysterious-pictures./refs/heads/main/IMG_20260430_044223.jpg",
-ThumbnailSize = 500
-})       
- 
-piTab:Paragraph({
-    Title = "",
-    Desc = "",
-    ImageSize = 0,  -- 没有文字时，图片与文字的间距设为0
-    Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/Mysterious-very-mysterious-very-mysterious-pictures./refs/heads/main/mmexport724e206309581b6f3692f70ab19bf1f1_1778395559669.png",
-    ThumbnailSize = 600
-})
-                                   
+ScriptTab:Button({
+        Title = "闪光",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/%E9%97%AA%E5%85%89.lua"))() 
+        end
+    })    
+ScriptTab:Button({
+        Title = "兵工厂",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI%E4%BB%98%E8%B4%B9%E5%85%B5%E5%B7%A5%E5%8E%82.lua"))() 
+        end
+    })    
+                                                 
     task.wait(0.5)
 
     -- 黑白渐变边框效果
