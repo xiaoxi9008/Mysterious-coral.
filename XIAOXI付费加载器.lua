@@ -45,7 +45,7 @@ local Camera = Workspace.CurrentCamera
 
 local function createUI()
     local Window = WindUI:CreateWindow({
-        Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font><font color='#FFAEC4'></font>",
+        Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>S</font><font color='#444444'>C</font><font color='#222222'>R</font><font color='#111111'>I</font><font color='#000000'>P</font><font color='#000000'>T</font><font color='#FFAEC4'></font>",
         Folder = "ftgshub",
         NewElements = true,
         HideSearchBar = false,
@@ -57,7 +57,7 @@ local function createUI()
         Background = "video:https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/extracted_1_3.mp4",
         
         OpenButton = {
-            Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font><font color='#FFAEC4'></font>",
+            Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>S</font><font color='#444444'>C</font><font color='#222222'>R</font><font color='#111111'>I</font><font color='#000000'>P</font><font color='#000000'>T</font><font color='#FFAEC4'></font>",
             CornerRadius = UDim.new(1,0),
             StrokeThickness = 1.5,
             Enabled = true,
@@ -77,16 +77,16 @@ local function createUI()
 AddSnowEffect(Window.UIElements.Main.Background, 30, 14, 0.5)
 
     Window:Tag({
-        Title = "付费版",
-        Radius = 4,
-        Color = Color3.fromHex("#ffffff"),
-    })
+    Title = "付费版",
+    Radius = 10,  -- 改这里，数值越大越圆
+    Color = Color3.fromHex("#ffffff"),
+})
 
-    Window:Tag({
-        Title = "加载器",
-        Radius = 4,
-        Color = Color3.fromHex("#ffffff"),
-    })
+Window:Tag({
+    Title = "加载器",
+    Radius = 10,  -- 改这里
+    Color = Color3.fromHex("#ffffff"),
+})
 
     local White = Color3.fromHex("#FFFFFF")
     local LightGray = Color3.fromHex("#CCCCCC")
@@ -687,9 +687,9 @@ ScriptTab:Button({
 end
 
 WindUI:Popup({
-    Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font>",
+    Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>S</font><font color='#444444'>C</font><font color='#222222'>R</font><font color='#111111'>I</font><font color='#000000'>P</font><font color='#000000'>T</font>",
     IconThemed = true,
-    Content = "尊贵付费版用户" .. game.Players.LocalPlayer.Name .. "使用<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font>付费版",
+    Content = "尊贵付费版用户" .. game.Players.LocalPlayer.Name .. "使用<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>S</font><font color='#444444'>C</font><font color='#222222'>R</font><font color='#111111'>I</font><font color='#000000'>P</font><font color='#000000'>T</font>付费版",
     Buttons = {
         {
             Title = "取消",

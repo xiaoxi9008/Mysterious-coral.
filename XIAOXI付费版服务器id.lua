@@ -1,5 +1,5 @@
 game.StarterGui:SetCore("SendNotification", {
-    Title = "XIAOXI HUB检测中",
+    Title = "XIAOXI SCRIPT检测中",
     Text = "正在为你自动检测服务器...",
     Duration = 3
 })

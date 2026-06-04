@@ -1,12 +1,12 @@
 pcall(function()
     game.StarterGui:SetCore("SendNotification", {
-        Title = "欢迎使用XIAOXI HUB",
+        Title = "欢迎使用XIAOXI SCRIPT",
         Text = "正在为你打开加载器…",
         Duration = 3 
     })
 end)
 
-print("✅ XIAOXI HUB - 正在加载...")
+print("✅ XIAOXI SCRIPT - 正在加载...")
 task.wait(3) 
 
 if game.PlaceId == 7239319209 then 
