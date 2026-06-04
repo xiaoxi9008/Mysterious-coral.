@@ -32,7 +32,7 @@ do
     if ok then
         WindUI = result
     else 
-        WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Potato5466794/Wind/refs/heads/main/Wind.luau"))()
+        WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/-UI/refs/heads/main/Wind.lua"))()
     end
 end
 
@@ -54,12 +54,12 @@ local function createUI()
         UserEnabled = true,
         SideBarWidth = 135,
         HasOutline = true,
-        Background = "video:https://raw.githubusercontent.com/xiaoxi9008/chesksks/refs/heads/main/b5f9989161bbc2e1f90c4028090de3d8.mp4",
+        Background = "video:https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/extracted_1_3.mp4",
         
         OpenButton = {
             Title = "<font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#333333'>I</font> <font color='#666666'>H</font><font color='#444444'>U</font><font color='#222222'>B</font><font color='#FFAEC4'></font>",
             CornerRadius = UDim.new(1,0),
-            StrokeThickness = 3,
+            StrokeThickness = 1.5,
             Enabled = true,
             Draggable = true,
             OnlyMobile = false,
@@ -73,6 +73,8 @@ local function createUI()
             ButtonsType = "Mac",
         }
     })
+    
+AddSnowEffect(Window.UIElements.Main.Background, 30, 14, 0.5)
 
     Window:Tag({
         Title = "付费版",
@@ -102,13 +104,55 @@ local function createUI()
     })
 
     AboutTab:Paragraph({
-        Title = "欢迎使用 <font color='#FFFFFF'>X</font><font color='#CCCCCC'>I</font><font color='#999999'>A</font><font color='#666666'>O</font><font color='#444444'>X</font><font color='#222222'>I</font> 脚本",
-        Desc = "作者：小西｜付费版为满血版脚本无阉割不会卡顿",
-        ImageSize = 50,
-        Thumbnail = "https://raw.githubusercontent.com/xiaoxi9008/-UI/refs/heads/main/920ce5d83c60d5193e79acd98e3e74408df827d6d2e5c1d25a56ed2e4a11177f.png",
-        ThumbnailSize = 170
-    })
-
+    Title = "服务器状态",
+    Desc = [[
+1.终极战场√
+2.偷走一粒红√
+3.自然灾害√
+4.99个森林夜√
+5.忍者传奇√
+6.种植花园√
+7.被遗弃√
+8.Ohio√
+9.doors√
+10.刀刃球√
+11.鱼√
+12.最强战场√
+13.赛马娘√
+14.闪光√
+15.狙击竞技场（正在添加）
+16.无限旅馆（正在更新无法使用）
+17.无限旅馆第2章√
+18.凹凸世界（正在修）
+19.兵工厂√
+20.防御√
+21.摧毁师（正在加）
+22.破坏者谜团2√
+23.po大po√
+24.手枪竞技场√
+25.卡塔娜竞技场√
+26.撕咬之夜√
+27.决斗场（正在更新无法使用）
+28.nico的下一个机器人√
+29.竞争对手√
+30.枪地FFA√
+31.数学谋杀案√
+32.手枪竞技场√
+33.犯罪√
+34.鱼（正在更新）
+35.GB√
+36.力量传奇（正在更新）
+37.战斗勇士（测试中）
+38.死铁轨（更新中）
+39.木筏101生存（有bug正在修）
+40.51区√
+    ]],
+    BackgroundColor3 = Color3.fromHex("#FFFFFF"),  -- 白色背景
+    BackgroundTransparency = 0,                     -- 0=完全不透明
+    Color = Color3.fromHex("#000000"),              -- 黑色文字
+    OutlineColor = Color3.fromHex("#CCCCCC"),       -- 浅灰边框
+    OutlineThickness = 1
+})
     AboutTab:Divider()
 
 AboutTab:Button({
@@ -289,7 +333,7 @@ AboutTab:Button({
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/%E8%B5%9B%E9%A9%AC%E5%A8%98.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/%E8%B5%9B%E9%A9%AC%E5%A8%98.lua"))()
         end
     })
 
@@ -301,7 +345,7 @@ AboutTab:Button({
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/拉大便.lua"))()   
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/拉大便.lua"))()   
         end
     })
 
@@ -318,16 +362,33 @@ AboutTab:Button({
     })
 
     ScriptTab:Button({
-        Title = "决斗场",
-        Color = Color3.fromHex("999999"),
-        Justify = "Center",
-        Icon = "shredder",
-        IconAlign = "Left",
-        Callback = function()
-            Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/决斗场.lua"))() 
-        end
-    })
+    Title = "决斗场",
+    Color = Color3.fromHex("999999"),
+    Justify = "Center",
+    Icon = "shredder",
+    IconAlign = "Left",
+    Callback = function()
+        -- 播放音频
+        local Sound = Instance.new("Sound")
+        Sound.SoundId = "rbxassetid://4590662766"
+        Sound.Parent = game:GetService("SoundService")
+        Sound.Volume = 5
+        Sound:Play()
+        
+        local repo = 'https://raw.githubusercontent.com/DevSloPo/obsidian_UI/main/'
+        local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+        
+        -- 显示通知
+        Library:Notify({
+            Title = "XIAOXI HUB",
+            Description = "该服务器正在更新中无法加载",
+            Time = 6
+        })
+        
+        Sound.Ended:Wait()
+        Sound:Destroy()
+    end
+})
 
     ScriptTab:Button({
         Title = "DOORS（推荐游玩）",
@@ -361,7 +422,7 @@ AboutTab:Button({
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/最强战场.lua"))() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/最强战场.lua"))() 
         end
     })
 
@@ -373,19 +434,7 @@ AboutTab:Button({
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXI手枪竞技场.lua"))()
-        end
-    })
-
-    ScriptTab:Button({
-        Title = "被遗弃（更新中）",
-        Color = Color3.fromHex("999999"),
-        Justify = "Center",
-        Icon = "shredder",
-        IconAlign = "Left",
-        Callback = function()
-            Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXIHUB被遗弃.lua"))() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI%E6%89%8B%E6%9E%AA%E7%AB%9E%E6%8A%80%E5%9C%BA%E4%BB%98%E8%B4%B9%E7%89%88.lua"))()
         end
     })
 
@@ -397,7 +446,7 @@ AboutTab:Button({
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/自然灾害.lua"))() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/自然灾害.lua"))() 
         end
     })
 
@@ -414,16 +463,33 @@ AboutTab:Button({
     })
 
     ScriptTab:Button({
-        Title = "PETAPETA（无限旅馆）",
-        Color = Color3.fromHex("999999"),
-        Justify = "Center",
-        Icon = "shredder",
-        IconAlign = "Left",
-        Callback = function()
-            Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXI无限旅馆（阉割版）.lua"))() 
-        end
-    })
+    Title = "PETAPETA（无限旅馆）",
+    Color = Color3.fromHex("999999"),
+    Justify = "Center",
+    Icon = "shredder",
+    IconAlign = "Left",
+    Callback = function()
+        -- 播放音频
+        local Sound = Instance.new("Sound")
+        Sound.SoundId = "rbxassetid://4590662766"
+        Sound.Parent = game:GetService("SoundService")
+        Sound.Volume = 5
+        Sound:Play()
+        
+        local repo = 'https://raw.githubusercontent.com/DevSloPo/obsidian_UI/main/'
+        local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+        
+        -- 显示通知
+        Library:Notify({
+            Title = "XIAOXI HUB",
+            Description = "该服务器正在更新中无法加载",
+            Time = 6
+        })
+        
+        Sound.Ended:Wait()
+        Sound:Destroy()
+    end
+})
 
     ScriptTab:Button({
         Title = "防御",
@@ -542,7 +608,7 @@ ScriptTab:Button({
         IconAlign = "Left",
         Callback = function()
             Window:Destroy()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/%E9%97%AA%E5%85%89.lua"))() 
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/闪光.lua"))() 
         end
     })    
 ScriptTab:Button({
