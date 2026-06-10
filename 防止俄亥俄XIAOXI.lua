@@ -13,10 +13,10 @@ if game.PlaceId == 7239319209 then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Mysterious-coral./refs/heads/main/XIAOXI%E4%BF%84%E4%BA%A5%E4%BF%84%E5%B7%9EV5.lua"))()
     
 elseif game.PlaceId == 117398147513099 then 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI付费版竞争对手.lua"))()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/e12c9c73658e761f946cb39a3f866b7f879353e94af9528df433f9695287585d/download"))()
     
 elseif game.PlaceId == 17625359962 then 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI付费版竞争对手.lua"))()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/e12c9c73658e761f946cb39a3f866b7f879353e94af9528df433f9695287585d/download"))()
         
 else
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Mysterious-coral./refs/heads/main/XIAOXI%E4%BB%98%E8%B4%B9%E5%8A%A0%E8%BD%BD%E5%99%A8.lua"))()

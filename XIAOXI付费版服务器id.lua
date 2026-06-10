@@ -1,5 +1,5 @@
 game.StarterGui:SetCore("SendNotification", {
-    Title = "XIAOXI SCRIPT检测中",
+    Title = "XIAOXI HUB检测中",
     Text = "正在为你自动检测服务器...",
     Duration = 3
 })
@@ -117,10 +117,10 @@ elseif game.PlaceId == 79036558298014 then -- PETAPETA 梦魇学校 / 第2章
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI无限旅馆第2章付费版.lua"))()
 
 elseif game.PlaceId == 117398147513099 then 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI付费版竞争对手.lua"))()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/e12c9c73658e761f946cb39a3f866b7f879353e94af9528df433f9695287585d/download"))()
     
 elseif game.PlaceId == 17625359962 then 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI付费版竞争对手.lua"))()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/e12c9c73658e761f946cb39a3f866b7f879353e94af9528df433f9695287585d/download"))()
 
 elseif game.PlaceId == 15085229984 then -- PETAPETA WIP测试服
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/XIAOXIBUXINB/refs/heads/main/XIAOXI无限旅馆（阉割版）.lua"))()          
