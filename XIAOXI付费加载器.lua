@@ -622,6 +622,18 @@ ScriptTab:Button({
             loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/XIAOXI%E4%BB%98%E8%B4%B9%E5%85%B5%E5%B7%A5%E5%8E%82.lua"))() 
         end
     })    
+
+ScriptTab:Button({
+        Title = "枪地FFA",
+        Color = Color3.fromHex("999999"),
+        Justify = "Center",
+        Icon = "shredder",
+        IconAlign = "Left",
+        Callback = function()
+            Window:Destroy()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/xiaoxi9008/Server./refs/heads/main/付费版枪地FFA.lua"))() 
+        end
+    })    
                                                  
     task.wait(0.5)
 
